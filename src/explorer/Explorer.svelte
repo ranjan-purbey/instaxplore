@@ -50,16 +50,18 @@
 		<Waiter />
 	{/await}
 	<SearchBar on:search={handleSearch} />
-	<div class="sort-by">
-		<label>
-			Sort:
-			<select bind:value={sortBy} on:change={handleSort} disabled={!posts.length}>
-				<option value="timestamp">Newest</option>
-				<option value="like_count">Most Liked</option>
-				<option value="comments_count">Most Commented</option>
-			</select>
-		</label>
-	</div>
+	{#if posts.length}
+		<div class="sort-by">
+			<label>
+				Sort:
+				<select bind:value={sortBy} on:change={handleSort}>
+					<option value="timestamp">Newest</option>
+					<option value="like_count">Most Liked</option>
+					<option value="comments_count">Most Commented</option>
+				</select>
+			</label>
+		</div>
+	{/if}
 	<div class="post-list">
 		{#each posts as post (post.id)}
 			<PostDetail {post} on:add />

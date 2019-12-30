@@ -10,6 +10,10 @@
 	const handleAddPost = ({detail}) => {
 		addedPosts = [...addedPosts, detail.post];
 	}
+
+	const handleRemovePost = ({detail}) => {
+		addedPosts = addedPosts.filter(post => post.id !== detail.postId);
+	}
 </script>
 <style>
 	main {
@@ -21,5 +25,5 @@
 <main>
 	<Explorer {instagramId} on:add={handleAddPost} />
 	<Gutter />
-	<Editor {addedPosts} />
+	<Editor {addedPosts} on:remove={handleRemovePost} />
 </main>

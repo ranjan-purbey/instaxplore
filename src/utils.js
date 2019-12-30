@@ -34,7 +34,7 @@ const instaGetMediaPosts = async (businessId, profile, since, until) => {
 		let after;
 		while(true) {
 			const endpoint = `/${businessId}?fields=business_discovery.username(${profile})`
-				+ `{media${after ? `.after(${after})` : ''}{media_url,like_count,comments_count,timestamp,caption,media_type}}`
+				+ `{media${after ? `.after(${after})` : ''}{media_url,like_count,comments_count,timestamp,caption,media_type,permalink,username}}`
 			const response = await api(endpoint);
 			if(response.error) throw new Error(response.error['error_user_msg']);
 

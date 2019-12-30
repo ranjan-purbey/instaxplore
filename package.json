@@ -4,7 +4,7 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "start": "http-server public --port 3000 -S -K .ssl/key.pem -C .ssl/cert.pem"
+    "start": "http-server public --port 4000 -c-1 -S -K .ssl/key.pem -C .ssl/cert.pem"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^11.0.0",

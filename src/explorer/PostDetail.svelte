@@ -14,7 +14,7 @@
 
 	const handleAdd = event => {
 		event.target.innerText = "Add again";
-		dispatch('add', {post: Object.assign({}, post)});
+		dispatch('add', {post: Object.assign({}, post, {id: `${post.id}_${Math.random().toString(36).substring(7)}`})});
 	}
 </script>
 
@@ -29,7 +29,7 @@
 	.post-detail:hover {
 		background: #eee;
 	}
-	.post-wrapper {
+	.media-wrapper {
 		height: 200px;
 		width: 200px;
 		border: solid 1px black;
@@ -44,7 +44,7 @@
 		max-width: 100%;
 		max-height: 100%;
 	}
-	.detail-wrapper {
+	.details-wrapper {
 		flex: 1;
 		display: flex;
 		flex-direction: column;
@@ -58,14 +58,14 @@
 </style>
 
 <div class="post-detail">
-	<div class="post-wrapper">
+	<div class="media-wrapper">
 		{#if post['media_type'] === "VIDEO"}
 			<video src={post['media_url']} preload="metadata" controls>Instagram Video</video>
 		{:else}
 			<img src={post['media_url']} alt="Instagram Image" />
 		{/if}
 	</div>
-	<div class="detail-wrapper">
+	<div class="details-wrapper">
 		<div>
 			<div>{post['caption']}</div>
 			<div class="timestamp">{new Date(post['timestamp']).toUTCString()}</div>
