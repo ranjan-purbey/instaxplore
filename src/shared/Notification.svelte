@@ -12,7 +12,7 @@
 					default: return '#dd0'
 				}
 			})()
-			setTimeout(() => {notification = null}, 2e3);
+			setTimeout(() => {notification = null}, 5e3);
 		})
 	})
 </script>
@@ -32,6 +32,6 @@
 </style>
 
 {#if notification}
- <div class="notification" style="--color: {color}">{notification.message}</div>
+	<div class="notification" style="--color: {color}">{notification.message}</div>
 {/if}
 

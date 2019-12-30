@@ -1,8 +1,22 @@
 <script>
+	import { createEventDispatcher } from 'svelte';
 	import PostDetail from './PostDetail.svelte';
+	import WordpressForm from '../WordpressForm.svelte';
+	import { getHtmlFromPosts } from '../utils.js';
 	export let addedPosts;
 	
-	let disabled;
+	let dispatch = createEventDispatcher();
+
+	const handleSave = () => {
+		dispatch('openModal', {
+			modal: {
+				component: WordpressForm,
+				props: {
+					content: getHtmlFromPosts(addedPosts)
+				}
+			}
+		})
+	}
 </script>
 
 <style>
@@ -23,18 +37,9 @@
 		display: flex;
 		justify-content: flex-end;
 	}
-	.save-button {
-		background: #093;
-		color: #fff;
-		font-weight: bold;
+	.save-button, .clear-button {
 		padding: .5rem;
 		margin: 0 .3rem;
-	}
-	.save-button:hover {
-		box-shadow: 0 0 5px #666;
-	}
-	.save-button:active {
-		background: #060;
 	}
 </style>
 
@@ -46,7 +51,8 @@
 	</div>
 	{#if addedPosts.length}
 		<div class="toolbar">
-			<button class="save-button">Save on Wordpress</button>
+			<button class="clear-button" on:click={() => dispatch('clear')}>Clear</button>
+			<button class="save-button" on:click={handleSave}>Save on Wordpress</button>
 		</div>
 	{/if}
 </div>

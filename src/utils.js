@@ -54,9 +54,53 @@ const instaGetMediaPosts = async (businessId, profile, since, until) => {
 	return images;
 }
 
+const postRequest = (endpoint, data, token) => fetch(endpoint, {
+	method: 'post',
+	headers: {
+		'Content-Type': 'application/json',
+		'Authorization': token ? `Bearer ${token}` : ''
+	},
+	body: JSON.stringify(data)
+}).then(res => res.json());
+
+const saveWordpressPost = async ({site, username, password, content, title}) => {
+	try {
+		const {message: authError, token} = await postRequest(`${site}/wp-json/jwt-auth/v1/token`, {username, password});
+		if(authError) throw new Error(authError);
+
+		const {message: saveError, id} = await (~~title == title
+			? postRequest(`${site}/wp-json/wp/v2/posts/${title}`, {content}, token)
+			: postRequest(`${site}/wp-json/wp/v2/posts`, {title, content}, token));
+		if(saveError) throw new Error(saveError);
+		notify('Successfully saved on Wordpress', 'success');
+		return id;
+	} catch(error) {
+		notify(error.message, 'error');
+	}
+}
+
+const getHtmlFromPosts = posts => {
+	return posts.map(post => {
+		const media = post['media_type'] === 'VIDEO'
+			? `<video src=${post['media_url']} preload="metadata" width="450" controls>Instagram Video</video>`
+			: `<img src=${post['media_url']} alt="Instagram Image" width="450" />`;
+		return `
+			<div>
+				${media}
+				<p>
+					<a href="https://www.instagram.com/${post['username']}">${post['username']}</a> ${post['caption']}
+					[<a href="${post['permalink']}" target="_blank">View Original</a>]
+				</p>
+			</div>
+		`
+	}).join("");
+}
+
 export {
 	promisify,
 	fbLoop,
 	instaGetMediaPosts,
-	notify
+	notify,
+	getHtmlFromPosts,
+	saveWordpressPost
 }

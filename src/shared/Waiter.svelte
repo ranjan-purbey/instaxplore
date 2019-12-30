@@ -1,13 +1,5 @@
 <script>
-  import { onMount } from 'svelte';
   export let text = "Please wait...";
-  let waiter;
-  onMount(() => {
-    const parentStyle = waiter.parentElement.style;
-    if(!parentStyle.position || parentStyle.position === 'static') {
-      parentStyle.position = 'relative';
-    };
-  });
 </script>
 <style>
   .waiter {
@@ -24,6 +16,6 @@
   }
 </style>
 
-<div class="waiter" bind:this={waiter}>
+<div class="waiter">
   <span>{text}</span>
 </div>
