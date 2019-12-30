@@ -1,0 +1,83 @@
+<script>
+	import { createEventDispatcher } from 'svelte';
+	import Icon from '../shared/Icon.svelte';
+	export let post;
+
+	const dispatch = createEventDispatcher();
+
+	const humanizeCount = count => {
+		if(count < 1e3) return count.toString();
+		else if(count < 1e6) return (count/1e3).toFixed(2).replace(/\.?0+$/, '') + ' K';
+		else return (count/1e6).toFixed(2).replace(/\.?0+$/, '') + ' M';
+	}
+	let likes = humanizeCount(post['like_count']), comments = humanizeCount(post['comments_count']);
+
+	const handleAdd = event => {
+		event.target.innerText = "Add again";
+		dispatch('add', {post: Object.assign({}, post)});
+	}
+</script>
+
+<style>
+	.post-detail {
+		margin: .3rem 0;
+		padding: .4rem;
+		border: solid 1px #eee;
+		border-radius: .4rem;
+		display: flex;
+	}
+	.post-detail:hover {
+		background: #eee;
+	}
+	.post-wrapper {
+		height: 200px;
+		width: 200px;
+		border: solid 1px black;
+		box-shadow: 0 0 4px #999;
+		margin-right: .7rem;
+		flex-shrink: 0;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+	img, video {
+		max-width: 100%;
+		max-height: 100%;
+	}
+	.detail-wrapper {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+	}
+	.timestamp {
+		color: #555;
+		font-size: .7em;
+		margin: .2rem;
+	}
+</style>
+
+<div class="post-detail">
+	<div class="post-wrapper">
+		{#if post['media_type'] === "VIDEO"}
+			<video src={post['media_url']} preload="metadata" controls>Instagram Video</video>
+		{:else}
+			<img src={post['media_url']} alt="Instagram Image" />
+		{/if}
+	</div>
+	<div class="detail-wrapper">
+		<div>
+			<div>{post['caption']}</div>
+			<div class="timestamp">{new Date(post['timestamp']).toUTCString()}</div>
+		</div>
+		<div class="flex justify-content-between">
+			<div class="stats">
+				<Icon color="red" icon="♥" size="1.2rem">{likes}</Icon>
+				<Icon color="black" icon="💬" size="1.2rem">{comments}</Icon>
+			</div>
+			<div>
+				<button on:click={handleAdd}>Add</button>
+			</div>
+		</div>
+	</div>
+</div>
