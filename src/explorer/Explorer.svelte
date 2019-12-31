@@ -10,10 +10,12 @@
 	let dispatch = createEventDispatcher();
 	let posts = [], profile, sortBy = 'timestamp';
 
-	const handleSearch = async ({detail}) => {
-		posts = new Promise(() => {});
-		posts = await instaGetMediaPosts(instagramId, detail.profile, detail.since, detail.until);
-		handleSort();
+	const handleSearch = ({detail}) => {
+		posts = instaGetMediaPosts(instagramId, detail.profile, detail.since, detail.until)
+			.then(res => {
+				posts = res;
+				handleSort();
+			});
 	}
 
 	const handleSort = () => {

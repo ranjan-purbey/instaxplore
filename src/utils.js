@@ -17,7 +17,7 @@ const fbLoop = async (endpoint, limit = 70) => {
 			if(response.error) throw new Error(response.error['error_user_msg']);
 
 			data = data.concat(response.data);
-			endpoint = response.paging.next;
+			endpoint = (response.paging || {}).next;
 		}
 	} catch(error) {
 		notify(error.message, 'error');

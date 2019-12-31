@@ -7,19 +7,15 @@
 	
 	import './helper.css'
 
-	let fbInitPromise = new Promise(() => {});
-	let loggedIn = false, linkedFacebookPage;
+	let fbInitPromise = new Promise(() => {}), loggedIn = false;
 
+	const getInstagramId = async () => (
+		await fbLoop('/me/accounts?fields=name,instagram_business_account')
+	).find(page => page['instagram_business_account'])['instagram_business_account'].id;
 
 	const fbInit = () => {
 		window.FB.Event.subscribe('auth.statusChange', async () => {
 			loggedIn = !!window.FB.getAccessToken();
-
-			if(loggedIn) {
-				linkedFacebookPage = new Promise(() => {});
-				linkedFacebookPage = (await fbLoop('/me/accounts?fields=name,instagram_business_account'))
-					.find(page => page['instagram_business_account']);
-			}
 		});
 		window.FB.getLoginStatus(() => fbInitPromise = Promise.resolve());
 	}
@@ -51,8 +47,8 @@
 	{:then res}
 		<Header {loggedIn} />
 		{#if loggedIn}
-			{#await linkedFacebookPage then }
-				<Workspace instagramId={linkedFacebookPage['instagram_business_account'].id} />
+			{#await getInstagramId() then instagramId}
+				<Workspace {instagramId} />
 			{:catch }
 				<p class="message">Couldn't find any Instagram business account linked Facebook page</p>
 			{/await}
