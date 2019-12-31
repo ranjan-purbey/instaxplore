@@ -34,7 +34,7 @@
 	</div>
 	<div>
 		<button on:click={() => loggedIn ? window.FB.logout() : window.FB.login()}>
-			<Icon size="1.5rem" color={loggedIn ? "#900" : "#093"} icon="⏻" hover>
+			<Icon size="1.5rem" color={loggedIn ? "#900" : "#093"} icon="power" hover>
 				Log{loggedIn ? 'out' : 'in'}
 			</Icon>
 		</button>

@@ -21,7 +21,7 @@
 </style>
 {#if icon}
 	<div class="icon-wrapper" class:hover style="--size: {size}; --color: {color};">
-		<div class="icon">{icon}</div>
+		<div class="icon"><span class="icofont-{icon}" /></div>
 		<div class="icon-text"><slot/></div>
 	</div>
 {/if}

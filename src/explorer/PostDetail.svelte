@@ -72,8 +72,8 @@
 		</div>
 		<div class="flex justify-content-between">
 			<div class="stats">
-				<Icon color="red" icon="♥" size="1.2rem">{likes}</Icon>
-				<Icon color="black" icon="💬" size="1.2rem">{comments}</Icon>
+				<Icon color="red" icon="heart">{likes}</Icon>
+				<Icon color="grey" icon="speech-comments">{comments}</Icon>
 			</div>
 			<div>
 				<button on:click={handleAdd}>Add</button>
