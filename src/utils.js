@@ -88,7 +88,7 @@ const getHtmlFromPosts = posts => {
 			<div>
 				${media}
 				<p>
-					<a href="https://www.instagram.com/${post['username']}">${post['username']}</a> ${post['caption']}
+					<a href="https://www.instagram.com/${post['username']}">@${post['username']}</a> ${post['caption']}
 					[<a href="${post['permalink']}" target="_blank">View Original</a>]
 				</p>
 			</div>

@@ -33,7 +33,7 @@
 		<span>InstaXplore</span>
 	</div>
 	<div>
-		<button on:click={() => loggedIn ? window.FB.logout() : window.FB.login()}>
+		<button on:click={() => loggedIn ? window.FB.logout() : window.FB.login(() => {}, {scope: 'manage_pages,instagram_basic,instagram_manage_insights', auth_type: 'rerequest'})}>
 			<Icon size="1.5rem" color={loggedIn ? "#900" : "#093"} icon="power" hover>
 				Log{loggedIn ? 'out' : 'in'}
 			</Icon>
