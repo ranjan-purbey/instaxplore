@@ -1,13 +1,14 @@
 <script>
-	import { createEventDispatcher } from 'svelte';
 	import Waiter from './shared/Waiter.svelte';
-	import { notify, saveWordpressPost } from './utils.js';
-	export let content;
+	import { getHtmlFromPosts, saveWordpressPost } from './utils.js';
+	export let posts;
 
-	let dispatch = createEventDispatcher();
-	let site, title, username, password, wordpressRequest, postId;
+	let site, title, username, password, embed, wordpressRequest, postId;
 
 	const handleSubmit = () => {
+		const content = embed ? posts.map(post => post.permalink).join("\n") : getHtmlFromPosts(posts);
+		if(site.slice(-1) === "/") site = site.slice(0, -1);
+
 		if(confirm("Are you sure you want to save the post?"))
 			wordpressRequest = saveWordpressPost({site, title, username, password, content}).then(res => postId = res);
 	}
@@ -45,7 +46,7 @@
 			<input bind:value={site} type="url" required />
 		</label>
 		<label>
-			Title / Post ID<br/>
+			Title(New Post) / Post ID(Existing Post)<br/>
 			<input bind:value={title} required />
 		</label>
 		<label>
@@ -55,6 +56,10 @@
 		<label>
 			Password<br/>
 			<input bind:value={password} type="password" required />
+		</label>
+		<label>
+			<input bind:checked={embed} type="checkbox" />
+			Use Embedded Instagram Posts
 		</label>
 		<div class="actions">
 			<button type="reset">Clear</button>

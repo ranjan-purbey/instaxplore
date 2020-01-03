@@ -12,7 +12,7 @@
 			modal: {
 				component: WordpressForm,
 				props: {
-					content: getHtmlFromPosts(addedPosts)
+					posts: addedPosts
 				}
 			}
 		})

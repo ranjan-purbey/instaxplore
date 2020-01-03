@@ -68,9 +68,18 @@ const saveWordpressPost = async ({site, username, password, content, title}) => 
 		const {message: authError, token} = await postRequest(`${site}/wp-json/jwt-auth/v1/token`, {username, password});
 		if(authError) throw new Error(authError);
 
-		const {message: saveError, id} = await (~~title == title
-			? postRequest(`${site}/wp-json/wp/v2/posts/${title}`, {content}, token)
-			: postRequest(`${site}/wp-json/wp/v2/posts`, {title, content}, token));
+		let saveRequest;
+		if(~~title == title) {
+			const {message: readError, content: oldContent} = await fetch(`${site}/wp-json/wp/v2/posts/${title}?context=edit`, {
+				headers: { 'Authorization': `Bearer ${token}`}
+			}).then(res => res.json());
+			if(readError) throw new Error(readError);
+			content = oldContent.raw + "\n" + content;
+			saveRequest = postRequest(`${site}/wp-json/wp/v2/posts/${title}`, {content}, token);
+		} else {
+			saveRequest = postRequest(`${site}/wp-json/wp/v2/posts/`, {title, content}, token);
+		}
+		const {message: saveError, id} = await saveRequest;
 		if(saveError) throw new Error(saveError);
 		notify('Successfully saved on Wordpress', 'success');
 		return id;
