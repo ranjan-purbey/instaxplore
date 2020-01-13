@@ -1,7 +1,7 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
 	import Icon from '../shared/Icon.svelte';
-	export let post;
+	export let post, highlight;
 
 	const dispatch = createEventDispatcher();
 
@@ -67,7 +67,12 @@
 	</div>
 	<div class="details-wrapper">
 		<div>
-			<div>{post['caption']}</div>
+			<div>
+				{@html highlight ? post['caption'].replace(
+					new RegExp(highlight, "gi"),
+					"<span style='background: #ff0a'>$&</span>"
+				) : post['caption']}
+			</div>
 			<div class="timestamp">{new Date(post['timestamp']).toUTCString()}</div>
 		</div>
 		<div class="flex justify-content-between">
