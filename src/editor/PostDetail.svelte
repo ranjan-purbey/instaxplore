@@ -1,8 +1,29 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
+	import Icon from '../shared/Icon.svelte';
 	export let post;
+	let postDetailComponent;
 
 	const dispatch = createEventDispatcher();
+	let active = false;
+
+	const handleDragStart = e => {
+		e.dataTransfer.allowedEffects = 'move';
+		e.dataTransfer.setData("sourceId", post.id);
+		e.dataTransfer.setDragImage(postDetailComponent, 0, e.y - postDetailComponent.getBoundingClientRect().top);
+		active = true;
+	}
+
+	const handleDragEnd = e => {
+		active = false;
+	}
+
+	const handleDragOver = e => {
+		const sourceId = e.dataTransfer.getData("sourceId");
+		if(sourceId !== post.id) {
+			dispatch('swap', {sourceId, targetId: post.id});
+		}
+	}
 </script>
 
 <style>
@@ -13,6 +34,10 @@
 		border-radius: .4rem;
 		display: flex;
 	}
+	.post-detail.active {
+		background: #66f9;
+		border: solid 2px #66f;
+	}
 	.media-wrapper {
 		height: 200px;
 		width: 200px;
@@ -22,7 +47,6 @@
 		flex-shrink: 0;
 		display: flex;
 		justify-content: center;
-		align-items: center;
 	}
 	img, video {
 		max-width: 100%;
@@ -45,9 +69,23 @@
 		font-size: .6em;
 		color: #666;
 	}
+	.drag-handle {
+		cursor: grab;
+		display: flex;
+		align-items: center;
+	}
 </style>
 
-<div class="post-detail">
+<div class="post-detail" class:active
+	bind:this={postDetailComponent}
+	on:dragstart={handleDragStart}
+	on:dragend={handleDragEnd}
+	on:dragover|preventDefault={handleDragOver}
+	on:drop|preventDefault>
+
+	<div class="drag-handle" draggable="true">
+		<Icon icon="sort" />
+	</div>
 	<div class="media-wrapper">
 		{#if post['media_type'] === "VIDEO"}
 			<video src={post['media_url']} preload="metadata" controls>Instagram Video</video>

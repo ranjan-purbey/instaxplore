@@ -15,6 +15,15 @@
 		addedPosts = addedPosts.filter(post => post.id !== detail.postId);
 	}
 
+	const handleSwapPosts = ({detail: {sourceId, targetId}}) => {
+		const sourceIndex = addedPosts.findIndex(post => post.id === sourceId);
+		const targetIndex = addedPosts.findIndex(post => post.id === targetId);
+		const addedPostsCopy = Array.from(addedPosts);
+		[addedPostsCopy[sourceIndex], addedPostsCopy[targetIndex]]
+			= [addedPostsCopy[targetIndex], addedPostsCopy[sourceIndex]];
+		addedPosts = addedPostsCopy;
+	}
+
 	const handleOpenModal = ({detail}) => {
 		modal = detail.modal;
 	}
@@ -47,6 +56,7 @@
 	<Explorer {instagramId} on:add={handleAddPost} />
 	<Gutter />
 	<Editor {addedPosts}
+		on:swap={handleSwapPosts}
 		on:remove={handleRemovePost}
 		on:openModal={handleOpenModal}
 		on:clear={() => addedPosts = []} />

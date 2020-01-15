@@ -4,7 +4,6 @@
 	import WordpressForm from '../WordpressForm.svelte';
 	import { getHtmlFromPosts } from '../utils.js';
 	export let addedPosts;
-	
 	let dispatch = createEventDispatcher();
 
 	const handleSave = () => {
@@ -46,7 +45,7 @@
 <div class="editor">
 	<div class="posts-container">
 		{#each addedPosts as post (post.id)}
-			<PostDetail {post} on:remove />
+			<PostDetail {post} on:remove on:swap />
 		{/each}
 	</div>
 	{#if addedPosts.length}
