@@ -3,14 +3,14 @@
 	import { getHtmlFromPosts, saveWordpressPost } from './utils.js';
 	export let posts;
 
-	let site, title, username, password, embed, wordpressRequest, postId;
+	let site, title, username, password, embed, wordpressRequest, wordpressPostId;
 
 	const handleSubmit = () => {
-		const content = embed ? posts.map(post => post.permalink).join("\n") : getHtmlFromPosts(posts);
+		const content = getHtmlFromPosts(posts, embed);
 		if(site.slice(-1) === "/") site = site.slice(0, -1);
 
 		if(confirm("Are you sure you want to save the post?"))
-			wordpressRequest = saveWordpressPost({site, title, username, password, content}).then(res => postId = res);
+			wordpressRequest = saveWordpressPost({site, title, username, password, content}).then(res => wordpressPostId = res);
 	}
 </script>
 
@@ -34,10 +34,10 @@
 {#await wordpressRequest}
 	<Waiter />
 {/await}
-{#if postId}
+{#if wordpressPostId}
 	<div class="success-message">
 		<span>Wordpress post saved successfully</span><br/>
-		<a href="{site}/wp-admin/post.php?post={postId}&action=edit" target="_blank">Click here</a> to edit
+		<a href="{site}/wp-admin/post.php?post={wordpressPostId}&action=edit" target="_blank">Click here</a> to edit
 	</div>
 {:else}
 	<form on:submit|preventDefault={handleSubmit}>

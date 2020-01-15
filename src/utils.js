@@ -88,20 +88,32 @@ const saveWordpressPost = async ({site, username, password, content, title}) => 
 	}
 }
 
-const getHtmlFromPosts = posts => {
+const getHtmlFromPosts = (posts, embed) => {
 	return posts.map(post => {
-		const media = post['media_type'] === 'VIDEO'
-			? `<video src=${post['media_url']} preload="metadata" width="450" controls>Instagram Video</video>`
-			: `<img src=${post['media_url']} alt="Instagram Image" width="450" />`;
-		return `
-			<div>
-				${media}
-				<p>
-					<a href="https://www.instagram.com/${post['username']}">@${post['username']}</a> ${post['caption']}
-					[<a href="${post['permalink']}" target="_blank">View Original</a>]
-				</p>
-			</div>
-		`
+		if(embed) {
+			return `
+				<div>
+					${post.header ? `<h2>${post.header}</h2>` : ''}
+					<p>${post.permalink}</p>
+					${post.description || ''}
+				</div>
+			`;
+		} else {
+			const media = post['media_type'] === 'VIDEO'
+				? `<video src=${post['media_url']} preload="metadata" width="450" controls>Instagram Video</video>`
+				: `<img src=${post['media_url']} alt="Instagram Image" width="450" />`;
+			return `
+				<div>
+					${post.header ? `<h2>${post.header}</h2>` : ''}
+					${media}
+					<p>
+						<a href="https://www.instagram.com/${post['username']}">@${post['username']}</a> ${post['caption']}<br/>
+						[<a href="${post['permalink']}" target="_blank">View Original</a>]<br/>
+						${post.description || ''}
+					</p>
+				</div>
+			`
+		}
 	}).join("");
 }
 

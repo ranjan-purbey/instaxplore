@@ -78,6 +78,15 @@
 		display: flex;
 		align-items: center;
 	}
+	.details {
+		display: flex;
+		flex-direction: column;
+		align-items: stretch;
+	}
+	.header {
+		font-weight: bold;
+		font-size: 1.2em;
+	}
 </style>
 
 <div class="post-detail" class:active
@@ -107,6 +116,10 @@
 				<button on:click|once={() => dispatch('remove', {postId: post.id})}>Remove</button>
 			</div>
 		</div>
-		<div class="caption">{post['caption']}</div>
+		<div class="details">
+			<input bind:value={post.header} class="header" placeholder="Header for post (optional)" />
+			<div class="caption">{post['caption']}</div>
+			<textarea bind:value={post.description} class="description" placeholder="Description for post (optional)"></textarea>
+		</div>
 	</div>
 </div>
