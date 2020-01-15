@@ -8,18 +8,22 @@
 	let active = false;
 
 	const handleDragStart = e => {
+		console.log(e);
 		e.dataTransfer.allowedEffects = 'move';
-		e.dataTransfer.setData("sourceId", post.id);
-		e.dataTransfer.setDragImage(postDetailComponent, 0, e.y - postDetailComponent.getBoundingClientRect().top);
+		window.sessionStorage.setItem("sourceId", post.id);
+		const {left: leftOffset, top: topOffset} = postDetailComponent.getBoundingClientRect();
+		e.dataTransfer.setDragImage(postDetailComponent, e.x - leftOffset, e.y - topOffset);
 		active = true;
 	}
 
 	const handleDragEnd = e => {
+		console.log(e);
+		window.sessionStorage.removeItem("sourceId")
 		active = false;
 	}
 
 	const handleDragOver = e => {
-		const sourceId = e.dataTransfer.getData("sourceId");
+		const sourceId = window.sessionStorage.getItem("sourceId");
 		if(sourceId !== post.id) {
 			dispatch('swap', {sourceId, targetId: post.id});
 		}
