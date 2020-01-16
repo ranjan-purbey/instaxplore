@@ -3,14 +3,24 @@
 	import { getHtmlFromPosts, saveWordpressPost } from './utils.js';
 	export let posts;
 
-	let site, title, username, password, embed, wordpressRequest, wordpressPostId;
+	let urls = {
+		staging: "https://staging.mamasuncut.com",
+		production: "https://mamasuncut.com",
+		others: null
+	};
+	let server  = "staging", siteUrl = urls[server];
+	let	title, username, password, embed, wordpressRequest, wordpressPostId;
+
+	const handleServerChange = () => {
+		siteUrl = urls[server];
+	}
 
 	const handleSubmit = () => {
 		const content = getHtmlFromPosts(posts, embed);
-		if(site.slice(-1) === "/") site = site.slice(0, -1);
+		if(siteUrl.slice(-1) === "/") siteUrl = siteUrl.slice(0, -1);
 
 		if(confirm("Are you sure you want to save the post?"))
-			wordpressRequest = saveWordpressPost({site, title, username, password, content}).then(res => wordpressPostId = res);
+			wordpressRequest = saveWordpressPost({siteUrl, title, username, password, content}).then(res => wordpressPostId = res);
 	}
 </script>
 
@@ -37,25 +47,32 @@
 {#if wordpressPostId}
 	<div class="success-message">
 		<span>Wordpress post saved successfully</span><br/>
-		<a href="{site}/wp-admin/post.php?post={wordpressPostId}&action=edit" target="_blank">Click here</a> to edit
+		<a href="{siteUrl}/wp-admin/post.php?post={wordpressPostId}&action=edit" target="_blank">Click here</a> to edit
 	</div>
 {:else}
 	<form on:submit|preventDefault={handleSubmit}>
-		<label>
+		<div>
 			Wordpress Site<br/>
-			<input bind:value={site} type="url" required />
-		</label>
+			<select bind:value={server} on:change={handleServerChange}>
+				{#each Object.keys(urls) as serverName (serverName)}
+					<option value={serverName}>{serverName[0].toUpperCase() + serverName.slice(1)}</option>
+				{/each}
+			</select>
+			<input bind:value={siteUrl} autocomplete="url"
+				placeholder="Enter Wordpress server URL"
+				disabled={server !== "others"} type="url" required />
+		</div>
 		<label>
 			Title(New Post) / Post ID(Existing Post)<br/>
 			<input bind:value={title} required />
 		</label>
 		<label>
 			Username<br/>
-			<input bind:value={username} required />
+			<input bind:value={username} autocomplete="username" required />
 		</label>
 		<label>
 			Password<br/>
-			<input bind:value={password} type="password" required />
+			<input bind:value={password} type="password" autocomplete="current-password" required />
 		</label>
 		<label>
 			<input bind:checked={embed} type="checkbox" />
