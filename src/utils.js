@@ -22,7 +22,7 @@ const fbLoop = async (endpoint, limit = 70) => {
 		const api = promisify(window.FB.api);
 		while(data.length < limit && endpoint) {
 			const response = await api(endpoint);
-			if(response.error) throw new Error(response.error['error_user_msg']);
+			if(response.error) throw new Error(response.error['error_user_msg'] || response.error['message']);
 
 			data = data.concat(response.data);
 			endpoint = (response.paging || {}).next;
@@ -44,7 +44,7 @@ const instaGetMediaPosts = async (businessId, profile, since, until) => {
 			const endpoint = `/${businessId}?fields=business_discovery.username(${profile})`
 				+ `{media${after ? `.after(${after})` : ''}{media_url,like_count,comments_count,timestamp,caption,media_type,permalink,username}}`
 			const response = await api(endpoint);
-			if(response.error) throw new Error(response.error['error_user_msg']);
+			if(response.error) throw new Error(response.error['error_user_msg'] || response.error['message']);
 
 			const {data, paging} = response['business_discovery']['media'];
 			images = images.concat(data.filter(image => {
