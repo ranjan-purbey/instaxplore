@@ -8,6 +8,14 @@ const notify = (message, type) => {
 	window.dispatchEvent(new CustomEvent('notification', {detail: {message, type}}));
 }
 
+const paginate = (array, pageNum = 1, pageSize = 20) => {
+	const res = [...array];
+	res.pageCount = Math.ceil(array.length / pageSize);
+	res.currentPage = res.slice((pageNum - 1) * pageSize, pageNum * pageSize);
+	res.currentPage.pageNum = Math.min(pageNum, res.pageCount);
+	return res;
+}
+
 const fbLoop = async (endpoint, limit = 70) => {
 	let data = [];
 	try {
@@ -119,6 +127,7 @@ const getHtmlFromPosts = (posts, embed) => {
 
 export {
 	promisify,
+	paginate,
 	fbLoop,
 	instaGetMediaPosts,
 	notify,
