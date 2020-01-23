@@ -100,7 +100,7 @@ const getHtmlFromPosts = (posts, embed) => {
 	return posts.map(post => {
 		if(embed) {
 			return `
-				<div>
+				<div style='margin-bottom: 5rem'>
 					${post.header ? `<h2>${post.header}</h2>` : ''}
 					<p>${post.permalink}</p>
 					${post.description || ''}
@@ -108,17 +108,18 @@ const getHtmlFromPosts = (posts, embed) => {
 			`;
 		} else {
 			const media = post['media_type'] === 'VIDEO'
-				? `<video src=${post['media_url']} preload="metadata" width="450" controls>Instagram Video</video>`
+				? `<video src=${post['media_url']} preload="metadata" height="450" width="450" controls>Instagram Video</video>`
 				: `<img src=${post['media_url']} alt="Instagram Image" width="450" />`;
 			return `
-				<div>
+				<div style='margin-bottom: 5rem'>
 					${post.header ? `<h2>${post.header}</h2>` : ''}
 					${media}
 					<p>
-						<a href="https://www.instagram.com/${post['username']}">@${post['username']}</a> ${post['caption']}<br/>
-						[<a href="${post['permalink']}" target="_blank">View Original</a>]<br/>
-						${post.description || ''}
+						<a href="https://www.instagram.com/${post['username']}">@${post['username']}</a> \
+						<em>${post['caption']}</em> \
+						<a href="${post['permalink']}" target="_blank">[View on Instagram]</a>
 					</p>
+					${post.description || ''}
 				</div>
 			`
 		}
