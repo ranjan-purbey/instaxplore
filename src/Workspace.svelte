@@ -2,7 +2,6 @@
 	import Gutter from './shared/Gutter.svelte';
 	import Explorer from './explorer/Explorer.svelte';
 	import Editor from './editor/Editor.svelte';
-	import { instaGetMediaPosts } from './utils';
 	export let instagramId;
 
 	let addedPosts = [], modal;
@@ -26,6 +25,16 @@
 
 	const handleOpenModal = ({detail}) => {
 		modal = detail.modal;
+	}
+
+	const handleCloseModal = ({detail}) => {
+		if(detail) {
+			switch(detail.action) {
+				case 'add_url_posts':
+					addedPosts = [...addedPosts, ...detail.payload]; break;
+			}
+		}
+		modal = null
 	}
 </script>
 <style>
@@ -63,7 +72,7 @@
 	{#if modal}
 		<div class="modal" on:click={() => modal = null}>
 			<div class="modal-wrapper" on:click|stopPropagation>
-				<svelte:component this={modal.component} {...modal.props} on:close={() => modal = null} />
+				<svelte:component this={modal.component} {...modal.props} on:close={handleCloseModal} />
 			</div>
 		</div>
 	{/if}

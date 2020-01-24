@@ -4,6 +4,9 @@
  */
 const promisify = f => (...args) => new Promise(res => f.apply(null, [...args, res]));
 
+const pluralize = (count, word, plural, includeCount = true) =>
+	`${includeCount ? count : ''} ${count === 1 ? word : plural}`
+
 const notify = (message, type) => {
 	window.dispatchEvent(new CustomEvent('notification', {detail: {message, type}}));
 }
@@ -33,8 +36,8 @@ const fbLoop = async (endpoint, limit = 70) => {
 	return data;
 }
 
-const instaGetMediaPosts = async (businessId, profile, since, until) => {
-	let images = [];
+const getInstagramMediaPosts = async (businessId, profile, since, until) => {
+	let posts = [];
 	since = new Date(since).getTime();
 	until = new Date(until).getTime();
 	try {
@@ -47,33 +50,55 @@ const instaGetMediaPosts = async (businessId, profile, since, until) => {
 			if(response.error) throw new Error(response.error['error_user_msg'] || response.error['message']);
 
 			const {data, paging} = response['business_discovery']['media'];
-			images = images.concat(data.filter(image => {
-				let timestamp = new Date(image.timestamp).getTime();
+			posts = posts.concat(data.filter(post => {
+				let timestamp = new Date(post.timestamp).getTime();
 				return timestamp >= since && timestamp <= until;
 			}));
 			after = paging && paging.cursors.after;
 
 			if(!after || new Date(data[data.length - 1].timestamp).getTime() < since) break;
 		}
-		if(images.length === 0) notify("No posts found for given profile and dates");
+		if(posts.length === 0) notify("No posts found for given profile and dates");
 	} catch(error) {
 		notify(error.message, 'error');
 	}
-	return images;
+	return posts;
 }
 
-const postRequest = (endpoint, data, token) => fetch(endpoint, {
-	method: 'post',
-	headers: {
-		'Content-Type': 'application/json',
-		'Authorization': token ? `Bearer ${token}` : ''
-	},
-	body: JSON.stringify(data)
-}).then(res => res.json());
+const getInstagramPostFromUrl = async (postUrl, hidecaption) => {
+	try {
+		const response = await fetch(`https://api.instagram.com/oembed/\
+			?url=${postUrl}${hidecaption ? `&hidecaption=${hidecaption}` : ''}`).then(res=> {
+				if(res.ok) return res.json();
+				else if(res.status === 404 || res.status === 400)
+					throw new Error(`Not a public Instagram post link:\n${postUrl}`);
+				else throw new Error(`Error ocurred: ${res.statusText}`)
+			});
+		return {
+			"permalink": postUrl,
+			"username": response['author_name'],
+			"media_url": response['thumbnail_url'],
+			"caption": response['title'],
+			"html": response['html'],
+			"id": `${response['media_id']}_${Math.random().toString(36).substring(7)}`
+		}
+	} catch(error) {
+		notify(error.message, 'error');
+	}
+}
 
 const saveWordpressPost = async ({siteUrl, username, password, content, title}) => {
+	const httpPost = (endpoint, data, token) => fetch(endpoint, {
+		method: 'post',
+		headers: {
+			'Content-Type': 'application/json',
+			'Authorization': token ? `Bearer ${token}` : ''
+		},
+		body: JSON.stringify(data)
+	}).then(res => res.json());
+
 	try {
-		const {message: authError, token} = await postRequest(`${siteUrl}/wp-json/jwt-auth/v1/token`, {username, password});
+		const {message: authError, token} = await httpPost(`${siteUrl}/wp-json/jwt-auth/v1/token`, {username, password});
 		if(authError) throw new Error(authError);
 
 		let saveRequest;
@@ -83,9 +108,9 @@ const saveWordpressPost = async ({siteUrl, username, password, content, title}) 
 			}).then(res => res.json());
 			if(readError) throw new Error(readError);
 			content = oldContent.raw + "\n" + content;
-			saveRequest = postRequest(`${siteUrl}/wp-json/wp/v2/posts/${title}`, {content}, token);
+			saveRequest = httpPost(`${siteUrl}/wp-json/wp/v2/posts/${title}`, {content}, token);
 		} else {
-			saveRequest = postRequest(`${siteUrl}/wp-json/wp/v2/posts/`, {title, content}, token);
+			saveRequest = httpPost(`${siteUrl}/wp-json/wp/v2/posts/`, {title, content}, token);
 		}
 		const {message: saveError, id} = await saveRequest;
 		if(saveError) throw new Error(saveError);
@@ -99,38 +124,36 @@ const saveWordpressPost = async ({siteUrl, username, password, content, title}) 
 const getHtmlFromPosts = (posts, embed) => {
 	return posts.map(post => {
 		if(embed) {
-			return `
-				<div style='margin-bottom: 5rem'>
-					${post.header ? `<h2>${post.header}</h2>` : ''}
-					<p>${post.permalink}</p>
-					${post.description || ''}
-				</div>
-			`;
+			post.body = post['permalink'];
 		} else {
 			const media = post['media_type'] === 'VIDEO'
 				? `<video src=${post['media_url']} preload="metadata" height="450" width="450" controls>Instagram Video</video>`
 				: `<img src=${post['media_url']} alt="Instagram Image" width="450" />`;
-			return `
-				<div style='margin-bottom: 5rem'>
-					${post.header ? `<h2>${post.header}</h2>` : ''}
-					${media}
-					<p>
-						<a href="https://www.instagram.com/${post['username']}">@${post['username']}</a> \
-						<em>${post['caption']}</em> \
-						<a href="${post['permalink']}" target="_blank">[View on Instagram]</a>
-					</p>
-					${post.description || ''}
-				</div>
+
+			post.body = `
+					${media}<br/>
+					<a href="https://www.instagram.com/${post['username']}">@${post['username']}</a> \
+					<em>${post['caption']}</em> \
+					<a href="${post['permalink']}" target="_blank">[View on Instagram]</a>
 			`
 		}
+		return `
+			<div style='margin-bottom: 5rem'>
+				${post.header ? `<h2>${post.header}</h2>` : ''}
+				<p>${post.body}</p>
+				${post.description || ''}
+			</div>
+		`
 	}).join("");
 }
 
 export {
 	promisify,
+	pluralize,
 	paginate,
 	fbLoop,
-	instaGetMediaPosts,
+	getInstagramMediaPosts,
+	getInstagramPostFromUrl,
 	notify,
 	getHtmlFromPosts,
 	saveWordpressPost

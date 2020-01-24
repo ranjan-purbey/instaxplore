@@ -1,10 +1,19 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
 	import PostDetail from './PostDetail.svelte';
-	import WordpressForm from '../WordpressForm.svelte';
+	import WordpressForm from '../modals/WordpressForm.svelte';
+	import InstagramLinksForm from '../modals/InstagramLinksForm.svelte';
 	import { getHtmlFromPosts } from '../utils.js';
 	export let addedPosts;
 	let dispatch = createEventDispatcher();
+
+	const handleAddLinks = () => {
+		dispatch('openModal', {
+			modal: {
+				component: InstagramLinksForm
+			}
+		})
+	}
 
 	const handleSave = () => {
 		dispatch('openModal', {
@@ -34,9 +43,9 @@
 		background: #eee;
 		box-shadow: 0 -5px 7px -2px #ccc;
 		display: flex;
-		justify-content: flex-end;
+		justify-content: space-between;
 	}
-	.save-button, .clear-button {
+	.save-button, .clear-button, .add-links-button {
 		padding: .5rem;
 		margin: 0 .3rem;
 	}
@@ -48,10 +57,15 @@
 			<PostDetail {post} on:remove on:swap />
 		{/each}
 	</div>
-	{#if addedPosts.length}
-		<div class="toolbar">
-			<button class="clear-button" on:click={() => dispatch('clear')}>Clear</button>
-			<button class="save-button" on:click={handleSave}>Save on Wordpress</button>
+	<div class="toolbar">
+		<div class="left">
+			<button class="add-links-button" on:click={handleAddLinks}>Add Links</button>
 		</div>
-	{/if}
+		<div class="right">
+			{#if addedPosts.length}
+				<button class="clear-button" on:click={() => dispatch('clear')}>Clear</button>
+				<button class="save-button" on:click={handleSave}>Save on Wordpress</button>
+			{/if}
+		</div>
+	</div>
 </div>

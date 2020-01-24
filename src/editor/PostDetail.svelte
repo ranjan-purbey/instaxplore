@@ -8,7 +8,6 @@
 	let active = false;
 
 	const handleDragStart = e => {
-		console.log(e);
 		e.dataTransfer.allowedEffects = 'move';
 		window.sessionStorage.setItem("sourceId", post.id);
 		const {left: leftOffset, top: topOffset} = postDetailComponent.getBoundingClientRect();
@@ -17,7 +16,6 @@
 	}
 
 	const handleDragEnd = e => {
-		console.log(e);
 		window.sessionStorage.removeItem("sourceId")
 		active = false;
 	}
@@ -109,8 +107,8 @@
 	<div class="details-wrapper">
 		<div class="toolbar">
 			<div class="info">
-				<a href="https://www.instagram.com/{post['username']}" class="username">@{post['username']}</a>
-				<span class="timestamp">{new Date(post['timestamp']).toUTCString()}</span>
+				<a href="https://www.instagram.com/{post['username']}" target="_blank" class="username">@{post['username']}</a>
+				<span class="timestamp">{post['timestamp'] ? new Date(post['timestamp']).toUTCString() : ''}</span>
 			</div>
 			<div class="actions">
 				<button on:click|once={() => dispatch('remove', {postId: post.id})}>Remove</button>

@@ -4,7 +4,7 @@
 	import SearchForm from './SearchForm.svelte';
 	import PostDetail from './PostDetail.svelte';
 	import Pagination from '../shared/Pagination.svelte';
-	import { instaGetMediaPosts, paginate } from '../utils.js';
+	import { getInstagramMediaPosts, paginate } from '../utils.js';
 
 	export let instagramId;
 
@@ -12,7 +12,7 @@
 	let posts = [], filteredPosts = [], profile, sortBy = 'timestamp', textFilter = '';
 
 	const handleSearch = ({detail}) => {
-		posts = instaGetMediaPosts(instagramId, detail.profile, detail.since, detail.until)
+		posts = getInstagramMediaPosts(instagramId, detail.profile, detail.since, detail.until)
 			.then(res => {
 				posts = res;
 				handleFilterAndSort();
