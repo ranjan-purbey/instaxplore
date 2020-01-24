@@ -3,7 +3,6 @@
 	import PostDetail from './PostDetail.svelte';
 	import WordpressForm from '../modals/WordpressForm.svelte';
 	import InstagramLinksForm from '../modals/InstagramLinksForm.svelte';
-	import { getHtmlFromPosts } from '../utils.js';
 	export let addedPosts;
 	let dispatch = createEventDispatcher();
 

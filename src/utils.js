@@ -121,10 +121,11 @@ const saveWordpressPost = async ({siteUrl, username, password, content, title}) 
 	}
 }
 
-const getHtmlFromPosts = (posts, embed) => {
-	return posts.map(post => {
+const getHtmlFromPosts = (posts, embed) =>
+	Promise.all(posts.map(async post => {
 		if(embed) {
-			post.body = post['permalink'];
+			post.body = !post['hidecaption'] && post['html']
+				? post['html'] : (await getInstagramPostFromUrl(post['permalink'], post['hidecaption']))['html'];
 		} else {
 			const media = post['media_type'] === 'VIDEO'
 				? `<video src=${post['media_url']} preload="metadata" height="450" width="450" controls>Instagram Video</video>`
@@ -133,7 +134,7 @@ const getHtmlFromPosts = (posts, embed) => {
 			post.body = `
 					${media}<br/>
 					<a href="https://www.instagram.com/${post['username']}">@${post['username']}</a> \
-					<em>${post['caption']}</em> \
+					<em>${post['hidecaption'] ? '' : post['caption']}</em> \
 					<a href="${post['permalink']}" target="_blank">[View on Instagram]</a>
 			`
 		}
@@ -144,8 +145,7 @@ const getHtmlFromPosts = (posts, embed) => {
 				${post.description || ''}
 			</div>
 		`
-	}).join("");
-}
+	})).then(htmlFragments => htmlFragments.join(""));
 
 export {
 	promisify,

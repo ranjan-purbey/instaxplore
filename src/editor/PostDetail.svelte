@@ -117,6 +117,7 @@
 		<div class="details">
 			<input bind:value={post.header} class="header" placeholder="Header for post (optional)" />
 			<div class="caption">{post['caption']}</div>
+			<label><input type="checkbox" bind:checked={post['hidecaption']}> Hide caption</label>
 			<textarea bind:value={post.description} class="description" placeholder="Description for post (optional)"></textarea>
 		</div>
 	</div>

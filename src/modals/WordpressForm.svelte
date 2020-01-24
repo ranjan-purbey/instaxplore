@@ -16,11 +16,12 @@
 	}
 
 	const handleSubmit = () => {
-		const content = getHtmlFromPosts(posts, embed);
-		if(siteUrl.slice(-1) === "/") siteUrl = siteUrl.slice(0, -1);
-
-		if(confirm("Are you sure you want to save the post?"))
-			wordpressRequest = saveWordpressPost({siteUrl, title, username, password, content}).then(res => wordpressPostId = res);
+		if(confirm("Are you sure you want to save the post?")) {
+			if(siteUrl.slice(-1) === "/") siteUrl = siteUrl.slice(0, -1);
+			wordpressRequest = getHtmlFromPosts(posts, embed)
+				.then(content => saveWordpressPost({siteUrl, title, username, password, content}))
+				.then(res => wordpressPostId = res);
+		}
 	}
 </script>
 
