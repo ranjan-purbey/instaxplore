@@ -77,7 +77,8 @@ const getInstagramPostFromUrl = async (postUrl, hidecaption) => {
 		return {
 			"permalink": postUrl,
 			"username": response['author_name'],
-			"media_url": response['thumbnail_url'],
+			// workaround for unreliable response['thumbnail_url']
+			"media_url": `${postUrl}${postUrl.slice(-1) === "/" ? "" : "/"}media?size=l`,
 			"caption": response['title'],
 			"html": response['html'],
 			"id": `${response['media_id']}_${Math.random().toString(36).substring(7)}`
