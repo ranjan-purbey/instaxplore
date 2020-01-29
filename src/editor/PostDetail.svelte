@@ -35,8 +35,7 @@
 		border: solid 1px #eee;
 		border-radius: .4rem;
 		display: flex;
-		max-height: 220px;
-		overflow: auto;
+		align-items: center;
 	}
 	.post-detail.active {
 		background: #66f9;
@@ -60,6 +59,8 @@
 		flex: 1;
 		display: flex;
 		flex-direction: column;
+		max-height: 220px;
+		overflow: auto;
 	}
 	.toolbar {
 		display: flex;

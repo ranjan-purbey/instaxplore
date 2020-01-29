@@ -132,13 +132,14 @@ const getHtmlFromPosts = (posts, embed) =>
 				? `<video src=${post['media_url']} preload="metadata" height="450" width="450" controls>Instagram Video</video>`
 				: `<img src=${post['media_url']} alt="Instagram Image" width="450" />`;
 
-			post.body = `${media}<br/>`
-				+ `<a href="https://www.instagram.com/${post['username']}">@${post['username']}</a>`
-				+ `<em>${post['hidecaption'] ? '' : post['caption']}</em>`
-				+ `<a href="${post['permalink']}" target="_blank">[View on Instagram]</a>`
+			post.body = `<figure style="margin-bottom: 1em;">${media}<figcaption>`
+				+ `<a href="https://www.instagram.com/${post['username']}">@${post['username']}</a> `
+				+ (post['hidecaption'] ? '' : ` <em>${post['caption']}</em> `)
+				+ `<a href="${post['permalink']}" target="_blank">[View on Instagram]</a></figcaption></figure>`
 		}
-		return `<p>${post.header ? `<h2>${post.header}</h2>` : ''}${post.body}`
-			+ `${post.description ? `</p><p>${post.description}` : ''}</p>`
+		return (post.header ? `<h2>${post.header}</h2>` : '')
+			+ post.body
+			+ (post.description ? `<p>${post.description}</p>` : '')
 	})).then(htmlFragments => htmlFragments.join(""));
 
 export {
