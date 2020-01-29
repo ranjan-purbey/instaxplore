@@ -78,7 +78,7 @@ const getInstagramPostFromUrl = async (postUrl, hidecaption) => {
 			"permalink": postUrl,
 			"username": response['author_name'],
 			// workaround for unreliable response['thumbnail_url']
-			"media_url": `${postUrl}${postUrl.slice(-1) === "/" ? "" : "/"}media?size=l`,
+			"media_url": `${postUrl}${postUrl.slice(-1) === "/" ? "" : "/"}media?size=m`,
 			"caption": response['title'],
 			"html": response['html'],
 			"id": `${response['media_id']}_${Math.random().toString(36).substring(7)}`
@@ -108,7 +108,7 @@ const saveWordpressPost = async ({siteUrl, username, password, content, title}) 
 				headers: { 'Authorization': `Bearer ${token}`}
 			}).then(res => res.json());
 			if(readError) throw new Error(readError);
-			content = oldContent.raw + "\n" + content;
+			content = oldContent.raw + content;
 			saveRequest = httpPost(`${siteUrl}/wp-json/wp/v2/posts/${title}`, {content}, token);
 		} else {
 			saveRequest = httpPost(`${siteUrl}/wp-json/wp/v2/posts/`, {title, content}, token);
@@ -132,20 +132,13 @@ const getHtmlFromPosts = (posts, embed) =>
 				? `<video src=${post['media_url']} preload="metadata" height="450" width="450" controls>Instagram Video</video>`
 				: `<img src=${post['media_url']} alt="Instagram Image" width="450" />`;
 
-			post.body = `
-					${media}<br/>
-					<a href="https://www.instagram.com/${post['username']}">@${post['username']}</a> \
-					<em>${post['hidecaption'] ? '' : post['caption']}</em> \
-					<a href="${post['permalink']}" target="_blank">[View on Instagram]</a>
-			`
+			post.body = `${media}<br/>`
+				+ `<a href="https://www.instagram.com/${post['username']}">@${post['username']}</a>`
+				+ `<em>${post['hidecaption'] ? '' : post['caption']}</em>`
+				+ `<a href="${post['permalink']}" target="_blank">[View on Instagram]</a>`
 		}
-		return `
-			<div style='margin-bottom: 5rem'>
-				${post.header ? `<h2>${post.header}</h2>` : ''}
-				<p>${post.body}</p>
-				${post.description || ''}
-			</div>
-		`
+		return `<p>${post.header ? `<h2>${post.header}</h2>` : ''}${post.body}`
+			+ `${post.description ? `</p><p>${post.description}` : ''}</p>`
 	})).then(htmlFragments => htmlFragments.join(""));
 
 export {
