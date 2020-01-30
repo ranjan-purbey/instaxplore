@@ -1,6 +1,6 @@
 .app.svelte-3dx771{display:flex;flex-direction:column;height:100%}.message.svelte-3dx771{font-size:1.3rem;text-align:center;color:#333;padding:1rem}
-header.svelte-8uj5zu{display:flex;justify-content:space-between;align-items:center;padding:.1rem .5rem;background:#eee;box-shadow:#ccc 0 0 5px}.brand.svelte-8uj5zu{font-size:1.5rem;font-weight:bold;color:#777
-	}button.svelte-8uj5zu{background:none;border:none;cursor:pointer;margin:0}
+header.svelte-13wsjq7{display:flex;justify-content:space-between;align-items:center;padding:.1rem .5rem;background:#eee;box-shadow:#ccc 0 0 5px}.brand.svelte-13wsjq7{font-size:1.5rem;font-weight:bold;color:#777
+	}.last-cache.svelte-13wsjq7{font-style:italic;font-size:0.6em;color:darkslategrey}button.svelte-13wsjq7{background:none;border:none;cursor:pointer;margin:0}
 main.svelte-1w9d9oe{flex:1;display:flex;position:relative}.modal.svelte-1w9d9oe{position:absolute;top:0;right:0;bottom:0;left:0;background:#000b;display:flex;justify-content:center;align-items:center}.modal-wrapper.svelte-1w9d9oe{padding:2rem;background:white;max-height:75vh}
 .waiter.svelte-1q1gv10{background:#ddda;position:absolute;top:0;left:0;bottom:0;right:0;display:flex;justify-content:center;align-items:center;font-size:1.4em
   }
