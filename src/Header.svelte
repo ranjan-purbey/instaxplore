@@ -1,7 +1,7 @@
 <script>
 	import Icon from './shared/Icon.svelte';
-
-	export let loggedIn;
+	import { pluralize } from './utils';
+	export let loggedIn, lastCache;
 </script>
 
 <style>
@@ -20,6 +20,12 @@
 		color: #777
 	}
 
+	.last-cache {
+		font-style: italic;
+		font-size: 0.6em;
+		color: darkslategrey;
+	}
+
 	button {
 		background: none;
 		border: none;
@@ -33,6 +39,9 @@
 		<span>InstaXplore</span>
 	</div>
 	<div>
+		{#if lastCache}
+			<span class="last-cache">Last cached on {new Date(lastCache.time).toLocaleString()} ({pluralize(lastCache.postsCount, 'post', 'posts')})</span>
+		{/if}
 		<button on:click={() => loggedIn ? window.FB.logout() : window.FB.login(() => {}, {scope: 'manage_pages,instagram_basic,instagram_manage_insights', auth_type: 'rerequest'})}>
 			<Icon size="1.5rem" color={loggedIn ? "#900" : "#093"} icon="power" hover>
 				Log{loggedIn ? 'out' : 'in'}

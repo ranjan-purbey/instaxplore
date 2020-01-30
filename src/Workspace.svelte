@@ -1,10 +1,31 @@
 <script>
+	import { onMount, createEventDispatcher } from 'svelte';
 	import Gutter from './shared/Gutter.svelte';
 	import Explorer from './explorer/Explorer.svelte';
 	import Editor from './editor/Editor.svelte';
 	export let instagramId;
 
 	let addedPosts = [], modal;
+	const dispatch = createEventDispatcher();
+
+	onMount(() => {
+		try {
+			addedPosts = [...addedPosts, ...JSON.parse(localStorage.getItem("addedPosts"))];
+		} catch(error){}
+		
+		let lastCache;
+		(function saveCache() {
+			if(!lastCache || (Date.now() - lastCache.time > 1e4)) {
+				window.localStorage.setItem("addedPosts", JSON.stringify(addedPosts));
+				lastCache = {
+					time: Date.now(),
+					postsCount: addedPosts.length
+				}
+				dispatch("cache", lastCache);
+			}
+			window.requestAnimationFrame(saveCache)
+		})();
+	})
 
 	const handleAddPost = ({detail}) => {
 		addedPosts = [...addedPosts, detail.post];

@@ -1,5 +1,4 @@
 <script>
-	import { createEventDispatcher } from 'svelte';
 	import Waiter from '../shared/Waiter.svelte';
 	import SearchForm from './SearchForm.svelte';
 	import PostDetail from './PostDetail.svelte';
@@ -8,7 +7,6 @@
 
 	export let instagramId;
 
-	let dispatch = createEventDispatcher();
 	let posts = [], filteredPosts = [], profile, sortBy = 'timestamp', textFilter = '';
 
 	const handleSearch = ({detail}) => {

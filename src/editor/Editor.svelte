@@ -4,7 +4,7 @@
 	import WordpressForm from '../modals/WordpressForm.svelte';
 	import InstagramLinksForm from '../modals/InstagramLinksForm.svelte';
 	export let addedPosts;
-	let dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher();
 
 	const handleAddLinks = () => {
 		dispatch('openModal', {

@@ -101,11 +101,13 @@
 		<Icon icon="sort" />
 	</div>
 	<div class="media-wrapper">
-		{#if post['media_type'] === "VIDEO"}
-			<video src={post['media_url']} preload="metadata" controls>Instagram Video</video>
-		{:else}
-			<img src={post['media_url']} alt="Instagram Image" />
-		{/if}
+		<a href={post['permalink']} target="_blank">
+			{#if post['media_type'] === "VIDEO"}
+				<video src={post['media_url']} preload="metadata" controls>Instagram Video</video>
+			{:else}
+				<img src={post['media_url']} alt="Instagram Image" />
+			{/if}
+		</a>
 	</div>
 	<div class="details-wrapper">
 		<div class="toolbar">

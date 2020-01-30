@@ -7,7 +7,7 @@
 	
 	import './helper.css'
 
-	let fbInitPromise = new Promise(() => {}), loggedIn = false;
+	let fbInitPromise = new Promise(() => {}), loggedIn = false, lastCache;
 
 	const getInstagramId = async () => (
 		await fbLoop('/me/accounts?fields=name,instagram_business_account')
@@ -45,10 +45,10 @@
 	{#await fbInitPromise}
 		<Waiter />
 	{:then res}
-		<Header {loggedIn} />
+		<Header {loggedIn} {lastCache} />
 		{#if loggedIn}
 			{#await getInstagramId() then instagramId}
-				<Workspace {instagramId} />
+				<Workspace {instagramId} on:cache={e => lastCache = e.detail}/>
 			{:catch }
 				<p class="message">Couldn't find any Instagram business account linked Facebook page</p>
 			{/await}
