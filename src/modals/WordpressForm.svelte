@@ -3,13 +3,22 @@
 	import { getHtmlFromPosts, saveWordpressPost } from '../utils.js';
 	export let posts;
 
+	let config = (() => {
+		try {
+			const {server, title, embed} = JSON.parse(window.localStorage.getItem('wpConfig'));
+			return {server, title, embed};
+		} catch(error) {
+			return {server: 'production', title: null, embed: false};	
+		}
+	})();
+
 	let urls = {
 		staging: "https://staging.mamasuncut.com",
 		production: "https://mamasuncut.com",
 		others: null
 	};
-	let server  = "staging", siteUrl = urls[server];
-	let	title, username, password, embed, wordpressRequest, wordpressPostId;
+	let server = config.server, siteUrl = urls[server];
+	let	title = config.title, username, password, embed = config.embed, wordpressRequest, wordpressPostId;
 
 	const handleServerChange = () => {
 		siteUrl = urls[server];
@@ -17,6 +26,7 @@
 
 	const handleSubmit = () => {
 		if(confirm("Are you sure you want to save the post?")) {
+			window.localStorage.setItem('wpConfig', JSON.stringify({server, title, embed}));
 			if(siteUrl.slice(-1) === "/") siteUrl = siteUrl.slice(0, -1);
 			wordpressRequest = getHtmlFromPosts(posts, embed)
 				.then(content => saveWordpressPost({siteUrl, title, username, password, content}))
@@ -32,6 +42,7 @@
 	}
 	.actions button {
 		margin-left: .3rem;
+		flex-grow: 1;
 	}
 	.success-message {
 		text-align: center
@@ -80,7 +91,6 @@
 			Use Embedded Instagram Posts
 		</label>
 		<div class="actions">
-			<button type="reset">Clear</button>
 			<button type="submit">Submit</button>
 		</div>
 	</form>

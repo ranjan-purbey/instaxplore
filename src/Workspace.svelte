@@ -10,7 +10,7 @@
 
 	onMount(() => {
 		try {
-			addedPosts = [...addedPosts, ...JSON.parse(localStorage.getItem("addedPosts"))];
+			addedPosts = [...addedPosts, ...JSON.parse(window.localStorage.getItem("addedPosts"))];
 		} catch(error){}
 		
 		let lastCache;
