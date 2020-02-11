@@ -7,6 +7,12 @@
 	const dispatch = createEventDispatcher();
 	let active = false;
 
+	const adjustHeight = e => {
+		e.target.style.height = '0';
+		e.target.style.height =
+			~~(e.target.scrollHeight + parseInt(window.getComputedStyle(e.target).getPropertyValue('font-size')) * 1.3) + 'px';
+	}
+
 	const handleDragStart = e => {
 		e.dataTransfer.allowedEffects = 'move';
 		window.sessionStorage.setItem("sourceId", post.id);
@@ -59,8 +65,6 @@
 		flex: 1;
 		display: flex;
 		flex-direction: column;
-		max-height: 220px;
-		overflow: auto;
 	}
 	.toolbar {
 		display: flex;
@@ -87,6 +91,9 @@
 	.header {
 		font-weight: bold;
 		font-size: 1.2em;
+	}
+	.header, .description {
+		resize: none;
 	}
 </style>
 
@@ -120,10 +127,12 @@
 			</div>
 		</div>
 		<div class="details">
-			<input bind:value={post.header} class="header" placeholder="Header for post (optional)" />
+			<textarea bind:value={post.header} class="header" rows="1" placeholder="Header for post (optional)"
+				on:input={adjustHeight}></textarea>
 			<div class="caption">{post['caption']}</div>
 			<label><input type="checkbox" bind:checked={post['hidecaption']}> Hide caption</label>
-			<textarea bind:value={post.description} class="description" placeholder="Description for post (optional)"></textarea>
+			<textarea bind:value={post.description} class="description" rows="1" placeholder="Description for post (optional)"
+				on:input={adjustHeight}></textarea>
 		</div>
 	</div>
 </div>
