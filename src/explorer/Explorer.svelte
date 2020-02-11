@@ -7,7 +7,7 @@
 
 	export let instagramId;
 
-	let posts = [], filteredPosts = [], profile, sortBy = 'timestamp', textFilter = '';
+	let posts = [], filteredPosts = [], profile, sortBy = 'timestamp', textFilter = '', typeFilter='images';
 
 	const handleSearch = ({detail}) => {
 		posts = getInstagramMediaPosts(instagramId, detail.profile, detail.since, detail.until)
@@ -24,6 +24,9 @@
 	const handleFilterAndSort = () => {
 		filteredPosts = paginate(posts
 			.filter(post => new RegExp(textFilter, "i").test(post['caption']))
+			.filter(post => typeFilter === 'all'
+				|| (typeFilter === 'images' && post['media_type'] !== 'VIDEO')
+				|| (typeFilter === 'videos' && post['media_type'] === 'VIDEO'))
 			.sort((postA, postB) => {
 				const a = postA[sortBy], b = postB[sortBy];
 				switch(sortBy) {
@@ -55,7 +58,7 @@
 		display: flex;
 		justify-items: flex-end;
 	}
-	.text-filter {
+	.filters > div {
 		margin-right: .3rem;
 	}
 </style>
@@ -72,6 +75,16 @@
 			<div class="filters">
 				<div class="text-filter">
 					<input bind:value={textFilter} on:input={handleFilterAndSort} placeholder="Filter by text"/>
+				</div>
+				<div class="type-filter">
+					<label>
+						Type:
+						<select bind:value={typeFilter} on:change={handleFilterAndSort}>
+							{#each ["all", "images", "videos"] as type (type)}
+								<option value={type}>{type[0].toUpperCase() + type.slice(1).toLowerCase()}</option>
+							{/each}
+						</select>
+					</label>
 				</div>
 				<div class="sort-by">
 					<label>
