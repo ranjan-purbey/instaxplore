@@ -78,7 +78,7 @@ const getInstagramPostFromUrl = async (postUrl, hidecaption) => {
 			"permalink": postUrl,
 			"username": response['author_name'],
 			// workaround for unreliable response['thumbnail_url']
-			"media_url": `${postUrl}${postUrl.slice(-1) === "/" ? "" : "/"}media?size=m`,
+			"media_url": `${postUrl}${postUrl.slice(-1) === "/" ? "" : "/"}media?size=l`,
 			"caption": response['title'],
 			"html": response['html'],
 			"id": `${response['media_id']}_${Math.random().toString(36).substring(7)}`
@@ -129,8 +129,8 @@ const getHtmlFromPosts = (posts, embed) =>
 				? post['html'] : (await getInstagramPostFromUrl(post['permalink'], post['hidecaption']))['html'];
 		} else {
 			const media = post['media_type'] === 'VIDEO'
-				? `<video src=${post['media_url']} preload="metadata" height="450" width="450" controls>Instagram Video</video>`
-				: `<img src=${post['media_url']} alt="Instagram Image" width="450" />`;
+				? `<video src=${post['media_url']} preload="metadata" style="max-height: 80vh; max-width: 100%;" controls>Instagram Video</video>`
+				: `<img src=${post['media_url']} alt="Instagram Image" style="max-height: 80vh;" />`;
 
 			post.body = `<figure style="margin-bottom: 1em;">${media}<figcaption>`
 				+ `<a href="https://www.instagram.com/${post['username']}">@${post['username']}</a> `
