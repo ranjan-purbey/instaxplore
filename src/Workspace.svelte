@@ -35,13 +35,16 @@
 		addedPosts = addedPosts.filter(post => post.id !== detail.postId);
 	}
 
-	const handleSwapPosts = ({detail: {sourceId, targetId}}) => {
-		const sourceIndex = addedPosts.findIndex(post => post.id === sourceId);
-		const targetIndex = addedPosts.findIndex(post => post.id === targetId);
-		const addedPostsCopy = Array.from(addedPosts);
-		[addedPostsCopy[sourceIndex], addedPostsCopy[targetIndex]]
-			= [addedPostsCopy[targetIndex], addedPostsCopy[sourceIndex]];
-		addedPosts = addedPostsCopy;
+	const handleReorderPosts = ({detail: {postId, delta}}) => {
+		const currentIndex = addedPosts.findIndex(post => post.id === postId);
+		const targetIndex = currentIndex + delta;
+		
+		if(currentIndex < targetIndex) addedPosts = addedPosts.slice(0, currentIndex)
+			.concat(addedPosts.slice(currentIndex + 1, targetIndex + 1))
+			.concat(addedPosts.slice(currentIndex, currentIndex + 1))
+			.concat(addedPosts.slice(targetIndex + 1))
+		else addedPosts = addedPosts.slice(0, targetIndex).concat(addedPosts.slice(currentIndex, currentIndex + 1))
+			.concat(addedPosts.slice(targetIndex, currentIndex)).concat(addedPosts.slice(currentIndex + 1));
 	}
 
 	const handleOpenModal = ({detail}) => {
@@ -86,7 +89,7 @@
 	<Explorer {instagramId} on:add={handleAddPost} />
 	<Gutter />
 	<Editor {addedPosts}
-		on:swap={handleSwapPosts}
+		on:reorder={handleReorderPosts}
 		on:remove={handleRemovePost}
 		on:openModal={handleOpenModal}
 		on:clear={() => addedPosts = []} />

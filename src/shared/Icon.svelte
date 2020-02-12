@@ -19,9 +19,8 @@
 		text-shadow: var(--color) 0 0 20px
 	}
 </style>
-{#if icon}
-	<div class="icon-wrapper" class:hover style="--size: {size}; --color: {color};">
-		<div class="icon"><span class="icofont-{icon}" /></div>
-		<div class="icon-text"><slot/></div>
-	</div>
-{/if}
+
+<div class="icon-wrapper" class:hover style="--size: {size}; --color: {color};">
+	<div class="icon"><span class="icofont-{icon}" /></div>
+	<div class="icon-text"><slot/></div>
+</div>

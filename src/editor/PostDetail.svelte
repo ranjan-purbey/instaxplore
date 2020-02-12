@@ -1,36 +1,21 @@
 <script>
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, afterUpdate } from 'svelte';
+	import { slide, crossfade, fade } from 'svelte/transition';
 	import Icon from '../shared/Icon.svelte';
-	export let post;
+	export let post, selected;
 	let postDetailComponent;
-
 	const dispatch = createEventDispatcher();
-	let active = false;
+
+	afterUpdate(() => {
+		if(selected) {
+			setTimeout(() => postDetailComponent.scrollIntoView({behaviour: 'smooth', block: 'nearest'}), 150);
+		}
+	})
 
 	const adjustHeight = e => {
 		e.target.style.height = '0';
 		e.target.style.height =
 			~~(e.target.scrollHeight + parseInt(window.getComputedStyle(e.target).getPropertyValue('font-size')) * 1.3) + 'px';
-	}
-
-	const handleDragStart = e => {
-		e.dataTransfer.allowedEffects = 'move';
-		window.sessionStorage.setItem("sourceId", post.id);
-		const {left: leftOffset, top: topOffset} = postDetailComponent.getBoundingClientRect();
-		e.dataTransfer.setDragImage(postDetailComponent, e.x - leftOffset, e.y - topOffset);
-		active = true;
-	}
-
-	const handleDragEnd = e => {
-		window.sessionStorage.removeItem("sourceId")
-		active = false;
-	}
-
-	const handleDragOver = e => {
-		const sourceId = window.sessionStorage.getItem("sourceId");
-		if(sourceId !== post.id) {
-			dispatch('swap', {sourceId, targetId: post.id});
-		}
 	}
 </script>
 
@@ -42,10 +27,6 @@
 		border-radius: .4rem;
 		display: flex;
 		align-items: center;
-	}
-	.post-detail.active {
-		background: #66f9;
-		border: solid 2px #66f;
 	}
 	.media-wrapper {
 		height: 200px;
@@ -78,11 +59,6 @@
 		font-size: .6em;
 		color: #666;
 	}
-	.drag-handle {
-		cursor: grab;
-		display: flex;
-		align-items: center;
-	}
 	.details {
 		display: flex;
 		flex-direction: column;
@@ -95,17 +71,14 @@
 	.header, .description {
 		resize: none;
 	}
+	.select-post-checkbox-container {
+		padding: .5rem;
+	}
 </style>
 
-<div class="post-detail" class:active
-	bind:this={postDetailComponent}
-	on:dragstart={handleDragStart}
-	on:dragend={handleDragEnd}
-	on:dragover|preventDefault={handleDragOver}
-	on:drop|preventDefault>
-
-	<div class="drag-handle" draggable="true">
-		<Icon icon="sort" />
+<div class="post-detail" bind:this={postDetailComponent}>
+	<div class="select-post-checkbox-container">
+		<input type="checkbox" checked={selected} on:change={e => dispatch('select', {postId: post.id, selected: e.target.checked})} />
 	</div>
 	<div class="media-wrapper">
 		<a href={post['permalink']} target="_blank">
