@@ -1,7 +1,5 @@
 <script>
 	import { createEventDispatcher, afterUpdate } from 'svelte';
-	import { slide, crossfade, fade } from 'svelte/transition';
-	import Icon from '../shared/Icon.svelte';
 	export let post, selected;
 	let postDetailComponent;
 	const dispatch = createEventDispatcher();
@@ -12,10 +10,18 @@
 		}
 	})
 
-	const adjustHeight = e => {
-		e.target.style.height = '0';
-		e.target.style.height =
-			~~(e.target.scrollHeight + parseInt(window.getComputedStyle(e.target).getPropertyValue('font-size')) * 1.3) + 'px';
+	const autoAdjustHeight = node => {
+		const adjustHeight = elem => {
+			elem.style.height = '0';
+			elem.style.height =
+				~~(elem.scrollHeight + parseInt(window.getComputedStyle(elem).getPropertyValue('font-size')) * 1.3) + 'px';
+		}
+		const handleInput = e => adjustHeight(e.target);
+		setTimeout(() => adjustHeight(node), 0);
+		node.addEventListener('input', handleInput);
+		return {
+			destroy() { node.removeEventListener('input', handleInput); }
+		}
 	}
 </script>
 
@@ -101,11 +107,11 @@
 		</div>
 		<div class="details">
 			<textarea bind:value={post.header} class="header" rows="1" placeholder="Header for post (optional)"
-				on:input={adjustHeight}></textarea>
+				use:autoAdjustHeight></textarea>
 			<div class="caption">{post['caption']}</div>
 			<label><input type="checkbox" bind:checked={post['hidecaption']}> Hide caption</label>
 			<textarea bind:value={post.description} class="description" rows="1" placeholder="Description for post (optional)"
-				on:input={adjustHeight}></textarea>
+				use:autoAdjustHeight></textarea>
 		</div>
 	</div>
 </div>
