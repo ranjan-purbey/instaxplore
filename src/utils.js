@@ -67,18 +67,34 @@ const getInstagramMediaPosts = async (businessId, profile, since, until) => {
 
 const getInstagramPostFromUrl = async (postUrl, hidecaption) => {
 	try {
+		postUrl = new URL(postUrl).href;
 		const response = await fetch(`https://api.instagram.com/oembed/\
 			?url=${postUrl}${hidecaption ? `&hidecaption=${hidecaption}` : ''}`).then(res=> {
 				if(res.ok) return res.json();
-				else if(res.status === 404 || res.status === 400)
-					throw new Error(`Not a public Instagram post link:\n${postUrl}`);
+				else if(res.status === 404 || res.status === 400) {
+					return fetch(`https://cors-anywhere-0906.herokuapp.com/${postUrl}`, {method: 'head'}).then(headRes => {
+						if(headRes.ok) {
+							const mediaType = headRes.headers.get('content-type').toLowerCase();
+							const post = {
+								"media_url": postUrl,
+								"non_instagram": true,
+								"id": Math.random().toString(36).substring(7)
+							}
+							if(mediaType.includes("image")) {
+								return Object.assign({}, post, {'media_type': 'IMAGE'});
+							} else if(mediaType.includes("video")) {
+								return Object.assign({}, post, {'media_type': 'VIDEO'});
+							} else throw new Error(`${postUrl} doesn't look like an IG post link or a media URL`);
+						}
+						else throw new Error(`${postUrl} couldn't be accessed: ${headRes.statusText}`);
+					})
+				}
 				else throw new Error(`Error ocurred: ${res.statusText}`)
 			});
-		return {
+		return response['non_instagram'] ? response : {
 			"permalink": postUrl,
 			"username": response['author_name'],
-			// workaround for unreliable response['thumbnail_url']
-			"media_url": `${postUrl}${postUrl.slice(-1) === "/" ? "" : "/"}media?size=l`,
+			"media_url": `${postUrl}media?size=l`,
 			"caption": response['title'],
 			"html": response['html'],
 			"id": `${response['media_id']}_${Math.random().toString(36).substring(7)}`
@@ -124,6 +140,7 @@ const saveWordpressPost = async ({siteUrl, username, password, content, title}) 
 
 const getHtmlFromPosts = (posts, embed) =>
 	Promise.all(posts.map(async post => {
+		if(post['non_instagram'] && embed) return null;
 		if(embed) {
 			post.body = !post['hidecaption'] && post['html']
 				? post['html'] : (await getInstagramPostFromUrl(post['permalink'], post['hidecaption']))['html'];
@@ -132,10 +149,12 @@ const getHtmlFromPosts = (posts, embed) =>
 				? `<video src=${post['media_url']} preload="metadata" style="max-height: 80vh; max-width: 100%;" controls>Instagram Video</video>`
 				: `<img src=${post['media_url']} alt="Instagram Image" style="max-height: 80vh;" />`;
 
-			post.body = `<figure style="margin-bottom: 1em;">${media}<figcaption>`
-				+ `<a href="https://www.instagram.com/${post['username']}">@${post['username']}</a> `
-				+ (post['hidecaption'] ? '' : ` <em>${post['caption']}</em> `)
-				+ `<a href="${post['permalink']}" target="_blank">[View on Instagram]</a></figcaption></figure>`
+			post.body = `<figure style="margin-bottom: 1em;">${media}`;
+			if(!post['non_instagram'])
+				post.body += `<figcaption><a href="https://www.instagram.com/${post['username']}">@${post['username']}</a> `
+				+ (post['hidecaption'] || post['non_instagram'] ? '' : ` <em>${post['caption']}</em> `)
+				+ `<a href="${post['permalink']}" target="_blank">[View on Instagram]</a></figcaption>`;
+			post.body += '</figure>';
 		}
 		return (post.header ? `<h2>${post.header}</h2>` : '')
 			+ post.body

@@ -58,13 +58,13 @@
 </style>
 
 <div class="post-detail">
-	<div class="media-wrapper">
+	<a class="media-wrapper" href={post['permalink'] || post['media_url']} target="_blank">
 		{#if post['media_type'] === "VIDEO"}
 			<video src={post['media_url']} preload="metadata" controls>Instagram Video</video>
 		{:else}
 			<img src={post['media_url']} alt="Instagram Image" />
 		{/if}
-	</div>
+	</a>
 	<div class="details-wrapper">
 		<div>
 			<div>

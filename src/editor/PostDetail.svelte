@@ -43,6 +43,7 @@
 		flex-shrink: 0;
 		display: flex;
 		justify-content: center;
+		align-items: center;
 	}
 	img, video {
 		max-width: 100%;
@@ -86,20 +87,20 @@
 	<div class="select-post-checkbox-container">
 		<input type="checkbox" checked={selected} on:change={e => dispatch('select', {postId: post.id, selected: e.target.checked})} />
 	</div>
-	<div class="media-wrapper">
-		<a href={post['permalink']} target="_blank">
-			{#if post['media_type'] === "VIDEO"}
-				<video src={post['media_url']} preload="metadata" controls>Instagram Video</video>
-			{:else}
-				<img src={post['media_url']} alt="Instagram Image" />
-			{/if}
-		</a>
-	</div>
+	<a class="media-wrapper" href={post['permalink'] || post['media_url']} target="_blank">
+		{#if post['media_type'] === "VIDEO"}
+			<video src={post['media_url']} preload="metadata" controls>Instagram Video</video>
+		{:else}
+			<img src={post['media_url']} alt="Instagram Image" />
+		{/if}
+	</a>
 	<div class="details-wrapper">
 		<div class="toolbar">
 			<div class="info">
-				<a href="https://www.instagram.com/{post['username']}" target="_blank" class="username">@{post['username']}</a>
-				<span class="timestamp">{post['timestamp'] ? new Date(post['timestamp']).toUTCString() : ''}</span>
+				{#if !post['non_instagram']}
+					<a href="https://www.instagram.com/{post['username']}" target="_blank" class="username">@{post['username']}</a>
+					<span class="timestamp">{post['timestamp'] ? new Date(post['timestamp']).toUTCString() : ''}</span>
+				{/if}
 			</div>
 			<div class="actions">
 				<button on:click|once={() => dispatch('remove', {postId: post.id})}>Remove</button>
@@ -108,8 +109,10 @@
 		<div class="details">
 			<textarea bind:value={post.header} class="header" rows="1" placeholder="Header for post (optional)"
 				use:autoAdjustHeight></textarea>
-			<div class="caption">{post['caption']}</div>
-			<label><input type="checkbox" bind:checked={post['hidecaption']}> Hide caption</label>
+			{#if !post['non_instagram']}
+				<div class="caption">{post['caption']}</div>
+				<label><input type="checkbox" bind:checked={post['hidecaption']}> Hide caption</label>
+			{/if}
 			<textarea bind:value={post.description} class="description" rows="1" placeholder="Description for post (optional)"
 				use:autoAdjustHeight></textarea>
 		</div>

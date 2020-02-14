@@ -36,7 +36,7 @@
 	{/await}
 	<form class="instagram-links-form" on:submit|preventDefault={handleSubmit}>
 		<label>
-			Enter Instagram post links (separated by new lines)
+			Enter Instagram post permalinks or media URL (separated by new lines)
 			<textarea class="links" bind:value={urls} required on:keyup={handleKeyboardSubmit}
 				placeholder="https://www.instagram.com/p/fA9uwTtkSN/"></textarea>
 		<button type="submit">GET</button>

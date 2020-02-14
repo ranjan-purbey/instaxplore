@@ -3,22 +3,22 @@
 	import { getHtmlFromPosts, saveWordpressPost } from '../utils.js';
 	export let posts;
 
-	let config = (() => {
-		try {
-			const {server, title, embed} = JSON.parse(window.localStorage.getItem('wpConfig'));
-			return {server, title, embed};
-		} catch(error) {
-			return {server: 'production', title: null, embed: false};	
-		}
-	})();
-
 	let urls = {
 		staging: "https://staging.mamasuncut.com",
 		production: "https://mamasuncut.com",
 		others: null
 	};
-	let server = config.server, siteUrl = urls[server];
-	let	title = config.title, username, password, embed = config.embed, wordpressRequest, wordpressPostId;
+
+	let {server, title, embed, siteUrl} = (() => {
+		try {
+			const {server, title, embed, siteUrl} = JSON.parse(window.localStorage.getItem('wpConfig'));
+			return {server, title, embed, siteUrl};
+		} catch(error) {
+			return {server: 'production', title: null, embed: false, get siteUrl(){return urls[this.server];}};	
+		}
+	})();
+
+	let	username, password, wordpressRequest, wordpressPostId;
 
 	const handleServerChange = () => {
 		siteUrl = urls[server];
@@ -26,7 +26,7 @@
 
 	const handleSubmit = () => {
 		if(confirm("Are you sure you want to save the post?")) {
-			window.localStorage.setItem('wpConfig', JSON.stringify({server, title, embed}));
+			window.localStorage.setItem('wpConfig', JSON.stringify({server, title, embed, siteUrl}));
 			if(siteUrl.slice(-1) === "/") siteUrl = siteUrl.slice(0, -1);
 			wordpressRequest = getHtmlFromPosts(posts, embed)
 				.then(content => saveWordpressPost({siteUrl, title, username, password, content}))
@@ -36,7 +36,12 @@
 </script>
 
 <style>
+	.embed-warning {
+		font-size: .85em;
+		color: darkcyan;
+	}
 	.actions {
+		margin-top: 1rem;
 		display: flex;
 		justify-content: flex-end;
 	}
@@ -89,6 +94,11 @@
 		<label>
 			<input bind:checked={embed} type="checkbox" />
 			Use Embedded Instagram Posts
+			{#if embed}
+				<div class="embed-warning">
+					<span class="icofont-info-circle"></span> Non-Instagram posts will be ignored in embedded mode
+				</div>
+			{/if}
 		</label>
 		<div class="actions">
 			<button type="submit">Submit</button>

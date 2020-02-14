@@ -61,6 +61,12 @@
 	.filters > div {
 		margin-right: .3rem;
 	}
+	.empty-list-info {
+		text-align: center;
+		color: darkgray;
+		font-style: italic;
+		margin-top: 1.5rem;
+	}
 </style>
 
 <section class="explorer">
@@ -103,5 +109,8 @@
 		{#each filteredPosts.currentPage || [] as post (post.id)}
 			<PostDetail {post} highlight={textFilter} on:add />
 		{/each}
+		{#if !(filteredPosts.currentPage && filteredPosts.currentPage.length)}
+			<div class='empty-list-info'>Nothing to display...</div>
+		{/if}
 	</div>
 </section>
