@@ -14,6 +14,7 @@
 		color: var(--color);
 		text-align: center;
 		display: inline-block;
+		transition: text-shadow .4s;
 	}
 	.icon-wrapper.hover:hover {
 		text-shadow: var(--color) 0 0 20px

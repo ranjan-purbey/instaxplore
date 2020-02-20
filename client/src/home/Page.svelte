@@ -1,32 +1,41 @@
 <script>
-	import { onMount, createEventDispatcher } from 'svelte';
-	import Gutter from './shared/Gutter.svelte';
+	import { onMount, onDestroy } from 'svelte';
+	import Gutter from '../shared/Gutter.svelte';
 	import Explorer from './explorer/Explorer.svelte';
-	import Editor from './editor/Editor.svelte';
-	export let instagramId;
+  import Editor from './editor/Editor.svelte';
+	import { fbLoop } from '../utils';
+	import { lastCache, getInstagramId } from '../stores';
 
 	let addedPosts = [], modal;
-	const dispatch = createEventDispatcher();
+	
+	const saveCache = (() => {
+		let rafId, lastCacheVal;
+		return {
+			subscribe() {
+				if(!lastCacheVal || (Date.now() - lastCacheVal.time > 1e4)) {
+					window.localStorage.setItem("addedPosts", JSON.stringify(addedPosts));
+					lastCacheVal = {
+						time: Date.now(),
+						postsCount: addedPosts.length
+					};
+					lastCache.set(lastCacheVal);
+				}
+				rafId = window.requestAnimationFrame(() => this.subscribe());
+			},
+			unsubscribe() {
+				window.cancelAnimationFrame(rafId);
+			}
+		}
+	})();
 
 	onMount(() => {
 		try {
 			addedPosts = [...addedPosts, ...JSON.parse(window.localStorage.getItem("addedPosts"))];
 		} catch(error){}
-		
-		let lastCache;
-		(function saveCache() {
-			if(!lastCache || (Date.now() - lastCache.time > 1e4)) {
-				window.localStorage.setItem("addedPosts", JSON.stringify(addedPosts));
-				lastCache = {
-					time: Date.now(),
-					postsCount: addedPosts.length
-				}
-				dispatch("cache", lastCache);
-			}
-			window.requestAnimationFrame(saveCache)
-		})();
+		saveCache.subscribe();
 	})
-
+	onDestroy(saveCache.unsubscribe)
+	
 	const handleAddPost = ({detail}) => {
 		addedPosts = [...addedPosts, detail.post];
 	}
@@ -85,19 +94,24 @@
 	}
 </style>
 
-<main>
-	<Explorer {instagramId} on:add={handleAddPost} />
-	<Gutter />
-	<Editor {addedPosts}
-		on:reorder={handleReorderPosts}
-		on:remove={handleRemovePost}
-		on:openModal={handleOpenModal}
-		on:clear={() => addedPosts = []} />
-	{#if modal}
-		<div class="modal" on:click={() => modal = null}>
-			<div class="modal-wrapper" on:click|stopPropagation>
-				<svelte:component this={modal.component} {...modal.props} on:close={handleCloseModal} />
-			</div>
-		</div>
-	{/if}
-</main>
+
+{#await $getInstagramId then }
+  <main>
+    <Explorer on:add={handleAddPost} />
+    <Gutter />
+    <Editor {addedPosts}
+      on:reorder={handleReorderPosts}
+      on:remove={handleRemovePost}
+      on:openModal={handleOpenModal}
+      on:clear={() => addedPosts = []} />
+    {#if modal}
+      <div class="modal" on:click={() => modal = null}>
+        <div class="modal-wrapper" on:click|stopPropagation>
+          <svelte:component this={modal.component} {...modal.props} on:close={handleCloseModal} />
+        </div>
+      </div>
+    {/if}
+  </main>
+{:catch }
+  <p class="message">Couldn't find any Instagram business account linked Facebook page</p>
+{/await}

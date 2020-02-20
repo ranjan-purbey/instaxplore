@@ -1,6 +1,6 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
-	import Icon from '../shared/Icon.svelte';
+	import Icon from '../../shared/Icon.svelte';
 	export let post, highlight;
 
 	const dispatch = createEventDispatcher();

@@ -1,15 +1,18 @@
 <script>
-	import { createEventDispatcher } from 'svelte';
+	import { createEventDispatcher, onDestroy } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import { flip } from 'svelte/animate';
 	import PostDetail from './PostDetail.svelte';
 	import WordpressForm from '../modals/WordpressForm.svelte';
 	import InstagramLinksForm from '../modals/InstagramLinksForm.svelte';
-	import IconButton from '../shared/IconButton.svelte';
-	import { pluralize } from '../utils';
+	import IconButton from '../../shared/IconButton.svelte';
+	import { pluralize } from '../../utils';
+	import { lastCache } from '../../stores';
 	export let addedPosts;
-	let selectedPostIds = [];
+	let selectedPostIds = [], lastCacheVal;
 	const dispatch = createEventDispatcher();
+
+	onDestroy(lastCache.subscribe(val => lastCacheVal = val));
 
 	const handleAddLinks = () => {
 		dispatch('openModal', {
@@ -61,9 +64,10 @@
 		display: flex;
 		justify-content: space-between;
 	}
-	.posts-count {
+	.posts-count, .last-cache {
+		font-style: italic;
 		font-size: .8em;
-		color: gray;
+		color: darkslategrey;
 	}
 	.save-button, .clear-button, .add-links-button {
 		padding: .5rem;
@@ -94,6 +98,9 @@
 		<div class="left">
 			<button class="add-links-button" on:click={handleAddLinks}>Add Links</button>
 			<span class="posts-count">{pluralize(addedPosts.length, 'post', 'posts')}</span>
+			{#if lastCacheVal}
+				<span class="last-cache">(Last cached {pluralize(lastCacheVal.postsCount, 'post', 'posts')} on {new Date(lastCacheVal.time).toLocaleString()})</span>
+			{/if}
 		</div>
 		<div class="right">
 			{#if addedPosts.length}

@@ -1,3 +1,4 @@
+import { getInstagramId } from './stores';
 /**
  * Return a promisified variant of a callback based asynchronous function
  * @param {Function} f
@@ -36,34 +37,39 @@ const fbLoop = async (endpoint, limit = 70) => {
 	return data;
 }
 
-const getInstagramMediaPosts = async (businessId, profile, since, until) => {
-	let posts = [];
-	since = new Date(since).getTime();
-	until = new Date(until).getTime();
-	try {
-		const api = promisify(window.FB.api);
-		let after;
-		while(true) {
-			const endpoint = `/${businessId}?fields=business_discovery.username(${profile})`
-				+ `{media${after ? `.after(${after})` : ''}{media_url,like_count,comments_count,timestamp,caption,media_type,permalink,username}}`
-			const response = await api(endpoint);
-			if(response.error) throw new Error(response.error['error_user_msg'] || response.error['message']);
+const getInstagramMediaPosts = (() => {
+	let businessId;
+	getInstagramId.subscribe(promise => promise.then(val => businessId = val));
 
-			const {data, paging} = response['business_discovery']['media'];
-			posts = posts.concat(data.filter(post => {
-				let timestamp = new Date(post.timestamp).getTime();
-				return timestamp >= since && timestamp <= until;
-			}));
-			after = paging && paging.cursors.after;
-
-			if(!after || new Date(data[data.length - 1].timestamp).getTime() < since) break;
+	return async (profile, since, until) => {
+		let posts = [];
+		since = new Date(since).getTime();
+		until = new Date(until).getTime();
+		try {
+			const api = promisify(window.FB.api);
+			let after;
+			while(true) {
+				const endpoint = `/${businessId}?fields=business_discovery.username(${profile})`
+					+ `{media${after ? `.after(${after})` : ''}{media_url,like_count,comments_count,timestamp,caption,media_type,permalink,username}}`
+				const response = await api(endpoint);
+				if(response.error) throw new Error(response.error['error_user_msg'] || response.error['message']);
+	
+				const {data, paging} = response['business_discovery']['media'];
+				posts = posts.concat(data.filter(post => {
+					let timestamp = new Date(post.timestamp).getTime();
+					return timestamp >= since && timestamp <= until;
+				}));
+				after = paging && paging.cursors.after;
+	
+				if(!after || new Date(data[data.length - 1].timestamp).getTime() < since) break;
+			}
+			if(posts.length === 0) notify("No posts found for given profile and dates");
+		} catch(error) {
+			notify(error.message, 'error');
 		}
-		if(posts.length === 0) notify("No posts found for given profile and dates");
-	} catch(error) {
-		notify(error.message, 'error');
-	}
-	return posts;
-}
+		return posts;
+	} 
+})()
 
 const getInstagramPostFromUrl = async (postUrl, hidecaption) => {
 	try {

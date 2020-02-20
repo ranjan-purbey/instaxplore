@@ -1,24 +1,34 @@
 <script>
+	import { onDestroy } from 'svelte';
 	import { fbLoop } from './utils';
 	import Header from './Header.svelte';
-	import Workspace from './Workspace.svelte';
+	// import Workspace from './Workspace.svelte';
 	import Waiter from './shared/Waiter.svelte';
 	import Notification from './shared/Notification.svelte';
+	import HomePage from './home/Page.svelte';
+	import GalleryPage from './gallery/Page.svelte';
+	import UploadPage from './upload/Page.svelte';
+	import { currentPath, loggedIn } from './stores';
 	
 	import './helper.css'
 
-	let fbInitPromise = new Promise(() => {}), loggedIn = false, lastCache;
 
-	const getInstagramId = async () => (
-		await fbLoop('/me/accounts?fields=name,instagram_business_account')
-	).find(page => page['instagram_business_account'])['instagram_business_account'].id;
+	let fbInitPromise = new Promise(() => {}), isLoggedIn, currentPage;
 
+	const routes = {
+		'/gallery': { component: GalleryPage },
+		'/upload': { component: UploadPage },
+		'home': { component: HomePage }
+	}
+	onDestroy(currentPath.subscribe(path => currentPage = routes[path] || routes['home']));
+	
 	const fbInit = () => {
 		window.FB.Event.subscribe('auth.statusChange', async () => {
-			loggedIn = !!window.FB.getAccessToken();
+			loggedIn.set(!!window.FB.getAccessToken());
 		});
 		window.FB.getLoginStatus(() => fbInitPromise = Promise.resolve());
 	}
+	onDestroy(loggedIn.subscribe(val => isLoggedIn = val));
 </script>
 
 <style>
@@ -26,12 +36,6 @@
 		display: flex;
 		flex-direction: column;
 		height: 100%;
-	}
-	.message {
-		font-size: 1.3rem;
-		text-align: center;
-		color: #333;
-		padding: 1rem;
 	}
 </style>
 
@@ -45,13 +49,9 @@
 	{#await fbInitPromise}
 		<Waiter />
 	{:then res}
-		<Header {loggedIn} {lastCache} />
-		{#if loggedIn}
-			{#await getInstagramId() then instagramId}
-				<Workspace {instagramId} on:cache={e => lastCache = e.detail}/>
-			{:catch }
-				<p class="message">Couldn't find any Instagram business account linked Facebook page</p>
-			{/await}
+		<Header />
+		{#if isLoggedIn}
+			<svelte:component this={currentPage.component} {...currentPage.props} />
 		{:else}
 			<p class="message">Please login to proceed</p>
 		{/if}

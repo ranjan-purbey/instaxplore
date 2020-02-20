@@ -1,16 +1,14 @@
 <script>
-	import Waiter from '../shared/Waiter.svelte';
+	import Waiter from '../../shared/Waiter.svelte';
 	import SearchForm from './SearchForm.svelte';
 	import PostDetail from './PostDetail.svelte';
-	import Pagination from '../shared/Pagination.svelte';
-	import { getInstagramMediaPosts, paginate } from '../utils.js';
-
-	export let instagramId;
+	import Pagination from '../../shared/Pagination.svelte';
+	import { getInstagramMediaPosts, paginate } from '../../utils.js';
 
 	let posts = [], filteredPosts = [], profile, sortBy = 'timestamp', textFilter = '', typeFilter='images';
 
 	const handleSearch = ({detail}) => {
-		posts = getInstagramMediaPosts(instagramId, detail.profile, detail.since, detail.until)
+		posts = getInstagramMediaPosts(detail.profile, detail.since, detail.until)
 			.then(res => {
 				posts = res;
 				handleFilterAndSort();
@@ -61,12 +59,6 @@
 	.filters > div {
 		margin-right: .3rem;
 	}
-	.empty-list-info {
-		text-align: center;
-		color: darkgray;
-		font-style: italic;
-		margin-top: 1.5rem;
-	}
 </style>
 
 <section class="explorer">
@@ -110,7 +102,7 @@
 			<PostDetail {post} highlight={textFilter} on:add />
 		{/each}
 		{#if !(filteredPosts.currentPage && filteredPosts.currentPage.length)}
-			<div class='empty-list-info'>Nothing to display...</div>
+			<div class='message'>Nothing to display...</div>
 		{/if}
 	</div>
 </section>

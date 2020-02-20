@@ -1,6 +1,6 @@
 <script>
-	import Waiter from '../shared/Waiter.svelte';
-	import { getHtmlFromPosts, saveWordpressPost } from '../utils.js';
+	import Waiter from '../../shared/Waiter.svelte';
+	import { getHtmlFromPosts, saveWordpressPost } from '../../utils.js';
 	export let posts;
 
 	let urls = {

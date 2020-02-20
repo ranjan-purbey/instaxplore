@@ -9,12 +9,12 @@ import fs from 'fs';
 const production = !process.env.ROLLUP_WATCH;
 
 export default {
-	input: 'src/main.js',
+	input: 'client/src/main.js',
 	output: {
 		sourcemap: true,
 		format: 'iife',
 		name: 'app',
-		file: 'public/build/bundle.js'
+		file: 'client/public/build/bundle.js'
 	},
 	plugins: [
 		svelte({
@@ -23,10 +23,10 @@ export default {
 			// we'll extract any component CSS out into
 			// a separate file — better for performance
 			css: css => {
-				css.write('public/build/bundle.css');
+				css.write('client/public/build/bundle.css');
 			}
 		}),
-		css({output: 'public/build/assets.css'}),
+		css({output: 'client/public/build/assets.css'}),
 		// If you have external dependencies installed from
 		// npm, you'll most likely need these plugins. In
 		// some cases you'll need additional configuration —
@@ -45,7 +45,7 @@ export default {
 		// Watch the `public` directory and refresh the
 		// browser on changes when not in production
 		!production && livereload({
-			watch: 'public',
+			watch: ['client/public', 'server'],
 			https: {
 				key: fs.readFileSync('.ssl/key.pem'),
 				cert: fs.readFileSync('.ssl/cert.pem')

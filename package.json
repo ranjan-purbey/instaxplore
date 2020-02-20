@@ -4,18 +4,25 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "start": "http-server public --port 4000 -c-1 -S -K .ssl/key.pem -C .ssl/cert.pem"
+    "start": "nodemon serve.js"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^11.0.0",
     "@rollup/plugin-node-resolve": "^6.0.0",
     "bootstrap": "^4.4.1",
-    "http-server": "^0.12.0",
+    "nodemon": "^2.0.2",
     "rollup": "^1.20.0",
     "rollup-plugin-css-only": "^2.0.0",
     "rollup-plugin-livereload": "^1.0.0",
     "rollup-plugin-svelte": "^5.0.3",
     "rollup-plugin-terser": "^5.1.2",
+    "sequelize-cli": "^5.5.1",
     "svelte": "^3.0.0"
+  },
+  "dependencies": {
+    "axios": "git@github.com:axios/axios.git#77f0ae4",
+    "express": "^4.17.1",
+    "sequelize": "^5.21.4",
+    "sqlite3": "^4.1.1"
   }
 }

@@ -1,0 +1,4 @@
+{
+  "watch": ["server", "serve.js"],
+  "ignore": ["server/**/*.sqlite"]
+}

@@ -2,3 +2,4 @@
 /public/build/
 /.ssl/
 .DS_Store
+/**/config.json

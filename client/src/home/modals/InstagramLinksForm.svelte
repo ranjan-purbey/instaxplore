@@ -1,7 +1,7 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
-	import { getInstagramPostFromUrl, notify, pluralize } from '../utils.js';
-	import Waiter from '../shared/Waiter.svelte';
+	import { getInstagramPostFromUrl, notify, pluralize } from '../../utils.js';
+	import Waiter from '../../shared/Waiter.svelte';
 	let urls, posts, dispatch = createEventDispatcher();
 
 	const handleKeyboardSubmit = e => {
