@@ -1,5 +1,5 @@
 <script>
-  export let size = '1.2rem', color = 'black', icon, hover = false;
+  export let size = '1.2rem', color = 'black', icon, hover = false, spin =false;
 </script>
 
 <style>
@@ -19,9 +19,17 @@
   .icon-wrapper.hover:hover {
     text-shadow: var(--color) 0 0 20px
   }
+  .spin {
+    display: inline-block;
+    animation: spin 1s infinite linear;
+  }
+  @keyframes spin {
+    from { transform: rotate(0deg) }
+    to { transform: rotate(360deg) }
+  }
 </style>
 
 <div class="icon-wrapper" class:hover style="--size: {size}; --color: {color};">
-  <div class="icon"><span class="icofont-{icon}" /> <slot name="text-right" /></div>
+  <div class="icon"><span class="icofont-{icon}" class:spin /> <slot name="text-right" /></div>
   <div class="icon-text"><slot/></div>
 </div>

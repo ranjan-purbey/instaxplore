@@ -1,5 +1,5 @@
 /node_modules/
-/public/build/
+/client/public/build/
 /.ssl/
 .DS_Store
 /**/config.json

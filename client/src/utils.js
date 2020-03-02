@@ -1,4 +1,5 @@
 import { getInstagramId } from './stores';
+import Axios from 'axios';
 /**
  * Return a promisified variant of a callback based asynchronous function
  * @param {Function} f
@@ -167,6 +168,12 @@ const getHtmlFromPosts = (posts, embed) =>
       + (post.description ? `<p>${post.description}</p>` : '')
   })).then(htmlFragments => htmlFragments.join(""));
 
+const uploadImageToGallery = image => {
+  const imageSanitized = ['src', 'href', 'width', 'height', 'alt' , 'tags'].reduce((res, key) =>
+    Object.assign(res, {[key]: image[key]}), {});
+  return Axios.post('/api/upload', imageSanitized);
+}
+
 export {
   promisify,
   pluralize,
@@ -176,5 +183,6 @@ export {
   getInstagramPostFromUrl,
   notify,
   getHtmlFromPosts,
-  saveWordpressPost
+  saveWordpressPost,
+  uploadImageToGallery
 }

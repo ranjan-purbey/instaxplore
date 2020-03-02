@@ -1,7 +1,7 @@
 const { Router } = require('express');
 const axios = require('axios');
 const { config } = require('./utils');
-const db = require('./database/models');
+// const db = require('./database/models');
 
 const apiRouter = Router();
 

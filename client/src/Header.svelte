@@ -18,11 +18,6 @@
     box-shadow: #000 0 0 5px;
     color: #666;
     font-size: 1.1rem;
-    position: fixed;
-    top: 0;
-    width: 100%;
-    box-sizing: border-box;
-    z-index: 100;
   }
   .header-item {
     display: flex;

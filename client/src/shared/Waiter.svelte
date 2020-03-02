@@ -1,5 +1,5 @@
 <script>
-  export let text = "Please wait...";
+  import Icon from './Icon.svelte';
 </script>
 <style>
   .waiter {
@@ -12,10 +12,10 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 1.4em
+    z-index: 100;
   }
 </style>
 
 <div class="waiter">
-  <span>{text}</span>
+  <slot><Icon icon="spinner" size="2em" spin><span slot="text-right">Please wait...</span></Icon></slot>
 </div>
