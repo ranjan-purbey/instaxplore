@@ -23,6 +23,7 @@
 
 <button class:disabled class='icon-button' on:click disabled={disabled}>
   <Icon size={size} color={color} icon={icon} hover={hover && !disabled}>
+    <span slot="text-right"><slot name="text-right" /></span>
     <slot/>
   </Icon>
 </button>

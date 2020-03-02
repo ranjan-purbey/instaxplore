@@ -27,6 +27,7 @@
     right: 0;
     max-height: 80vh;
     overflow-y: auto;
+    z-index: 100;
   }
   .notification {
     margin: 1rem;

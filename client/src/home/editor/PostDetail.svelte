@@ -1,5 +1,6 @@
 <script>
   import { createEventDispatcher, afterUpdate } from 'svelte';
+  import { autoAdjustHeight } from '../../actions';
   export let post, selected;
   let postDetailComponent;
   const dispatch = createEventDispatcher();
@@ -9,20 +10,6 @@
       setTimeout(() => postDetailComponent.scrollIntoView({behaviour: 'smooth', block: 'nearest'}), 150);
     }
   })
-
-  const autoAdjustHeight = node => {
-    const adjustHeight = elem => {
-      elem.style.height = '0';
-      elem.style.height =
-        ~~(elem.scrollHeight + parseInt(window.getComputedStyle(elem).getPropertyValue('font-size')) * 1.3) + 'px';
-    }
-    const handleInput = e => adjustHeight(e.target);
-    setTimeout(() => adjustHeight(node), 0);
-    node.addEventListener('input', handleInput);
-    return {
-      destroy() { node.removeEventListener('input', handleInput); }
-    }
-  }
 </script>
 
 <style>

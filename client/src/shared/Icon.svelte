@@ -22,6 +22,6 @@
 </style>
 
 <div class="icon-wrapper" class:hover style="--size: {size}; --color: {color};">
-  <div class="icon"><span class="icofont-{icon}" /></div>
+  <div class="icon"><span class="icofont-{icon}" /> <slot name="text-right" /></div>
   <div class="icon-text"><slot/></div>
 </div>

@@ -1,6 +1,5 @@
 <script>
   import { onMount, onDestroy } from 'svelte';
-  import Gutter from '../shared/Gutter.svelte';
   import Explorer from './explorer/Explorer.svelte';
   import Editor from './editor/Editor.svelte';
   import { fbLoop } from '../utils';
@@ -76,6 +75,10 @@
     display: flex;
     position: relative;
   }
+  .gutter {
+    width: .3rem;
+    background: #eee;
+  }
   .modal {
     position: absolute;
     top: 0;
@@ -98,7 +101,7 @@
 {#await $getInstagramId then }
   <main>
     <Explorer on:add={handleAddPost} />
-    <Gutter />
+    <div class="gutter" />
     <Editor {addedPosts}
       on:reorder={handleReorderPosts}
       on:remove={handleRemovePost}
