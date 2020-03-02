@@ -11,7 +11,7 @@ apiRouter.use(async (req, res, next) => {
     const tokenData = (await axios.get('https://graph.facebook.com/v6.0/debug_token', {
       params: { 'access_token': config.facebook.appToken, 'input_token': fbToken}
     })).data;
-    
+
     if(tokenData.data['is_valid'] && tokenData.data["user_id"]) {
       res.locals.user = (await axios.get(`https://graph.facebook.com/v6.0/${tokenData.data['user_id']}`, {
         params: { 'access_token': config.facebook.appToken }
