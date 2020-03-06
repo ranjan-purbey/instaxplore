@@ -13,14 +13,15 @@
 </script>
 
 <style>
-  span {
-    cursor: pointer;
+  a {
+    color: inherit;
+    text-decoration: none;
   }
   slot:active, slot:hover {
     text-decoration: underline;
   }
 </style>
 
-<span tabindex="0" on:click={handleClick}>
+<a href={to} tabindex="0" on:click|preventDefault={handleClick}>
   <slot />
-</span>
+</a>

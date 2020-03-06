@@ -4,25 +4,27 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "start": "nodemon serve.js"
+    "dev:serve": "nodemon serve.js",
+    "start": "node serve.js"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^11.0.0",
     "@rollup/plugin-node-resolve": "^6.0.0",
-    "bootstrap": "^4.4.1",
     "nodemon": "^2.0.2",
     "rollup": "^1.20.0",
     "rollup-plugin-css-only": "^2.0.0",
     "rollup-plugin-livereload": "^1.0.0",
     "rollup-plugin-svelte": "^5.0.3",
     "rollup-plugin-terser": "^5.1.2",
+    "sanitize-html": "^1.22.0",
     "sequelize-cli": "^5.5.1",
     "svelte": "^3.0.0"
   },
   "dependencies": {
     "axios": "git@github.com:axios/axios.git#77f0ae4",
+    "cookie-parser": "^1.4.4",
     "express": "^4.17.1",
-    "sequelize": "^5.21.4",
-    "sqlite3": "^4.1.1"
+    "form-data": "^3.0.0",
+    "jsonwebtoken": "^8.5.1"
   }
 }

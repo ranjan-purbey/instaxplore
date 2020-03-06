@@ -1,9 +1,7 @@
 <script>
-  import { createEventDispatcher } from 'svelte';
   import Icon from '../../shared/Icon.svelte';
+  import { addedMedia } from '../../stores';
   export let post, highlight;
-
-  const dispatch = createEventDispatcher();
 
   const humanizeCount = count => {
     if(count < 1e3) return count.toString();
@@ -14,7 +12,10 @@
 
   const handleAdd = event => {
     event.target.innerText = "Add again";
-    dispatch('add', {post: Object.assign({}, post, {id: `${post.id}_${Math.random().toString(36).substring(7)}`})});
+    addedMedia.update(media => [
+      ...media,
+      {...post, id: `${post.id}_${Math.random().toString(36).substring(7)}`}
+    ])
   }
 </script>
 

@@ -49,7 +49,8 @@ export default {
       https: {
         key: fs.readFileSync('.ssl/key.pem'),
         cert: fs.readFileSync('.ssl/cert.pem')
-      }
+      },
+      delay: 1000
     }),
 
     // If we're building for production (npm run build
@@ -69,7 +70,7 @@ function serve() {
       if (!started) {
         started = true;
 
-        require('child_process').spawn('npm', ['run', 'start', '--', '--dev'], {
+        require('child_process').spawn('npm', ['run', 'dev:serve'], {
           stdio: ['ignore', 'inherit', 'inherit'],
           shell: true
         });

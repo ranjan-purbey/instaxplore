@@ -1,5 +1,6 @@
 <script>
   import { onMount } from 'svelte';
+  import sanitizeHtml from 'sanitize-html';
   let notifications = [], color;
 
   onMount(() => {
@@ -33,6 +34,7 @@
     margin: 1rem;
     padding: 2rem;
     min-width: 20rem;
+    max-width: 50rem;
     background: #000;
     font-weight: bold;
     color: var(--color);
@@ -42,6 +44,6 @@
 
 <div class="notifications-container">
   {#each notifications as notification}
-    <div class="notification" style="--color: {notification.color}">{notification.message}</div>
+    <div class="notification" style="--color: {notification.color}">{@html sanitizeHtml(notification.message)}</div>
   {/each}
 </div>

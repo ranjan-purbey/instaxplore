@@ -1,21 +1,25 @@
 <script>
+  import { onDestroy } from 'svelte';
   import Waiter from '../../shared/Waiter.svelte';
   import SearchForm from './SearchForm.svelte';
   import PostDetail from './PostDetail.svelte';
   import Pagination from '../../shared/Pagination.svelte';
-  import { getInstagramMediaPosts, paginate } from '../../utils.js';
+  import { getInstagramMediaPosts, paginate } from '../../utils';
+  import { getInstagramId } from '../../stores';
 
-  let posts = [], filteredPosts = [], profile, sortBy = 'timestamp', textFilter = '', typeFilter='images';
+  let posts = [], filteredPosts = [], profile, sortBy = 'timestamp', textFilter = '', typeFilter='images', instagramId;
+
+  onDestroy(getInstagramId.subscribe(async promise => { instagramId = await promise }));
 
   const handleSearch = ({detail}) => {
-    posts = getInstagramMediaPosts(detail.profile, detail.since, detail.until)
+    posts = getInstagramMediaPosts(detail.profile, detail.since, detail.until, instagramId)
       .then(res => {
         posts = res;
         handleFilterAndSort();
       });
   }
 
-  const handlePageNavigation = e => {
+  const handlePagination = e => {
     filteredPosts = paginate(filteredPosts, e.detail.pageNum);
   }
 
@@ -69,7 +73,7 @@
   {#if posts.length}
     <div class="tools">
       <Pagination pageCount={filteredPosts.pageCount} currentPage={filteredPosts.currentPage.pageNum}
-        on:navigate={handlePageNavigation} />
+        on:navigate={handlePagination} />
       <div class="filters">
         <div class="text-filter">
           <input bind:value={textFilter} on:input={handleFilterAndSort} placeholder="Filter by text"/>

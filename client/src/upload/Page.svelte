@@ -3,9 +3,11 @@
   import ItemDetail from './ItemDetail.svelte';
   import Icon from '../shared/Icon.svelte';
   import IconButton from '../shared/IconButton.svelte';
-  import { notify, uploadImageToGallery } from '../utils';
+  import ModalDialog from '../shared/ModalDialog.svelte';
+  import WordpressLogin from '../shared/WordpressLogin.svelte';
+  import { notify, uploadImageToWordpress, cookies } from '../utils';
 
-  let pickedImages = [], totalImagesCount, uploadedImagesCount, inProgress = false;
+  let pickedImages = [], totalImagesCount, uploadedImagesCount, inProgress = false, showWordpressLoginDialog = false;
   try {
     pickedImages = pickedImages.concat(JSON.parse(window.sessionStorage.getItem('pickedImages')) || []);
   } catch(_){}
@@ -34,8 +36,8 @@
   });
   onDestroy(() => window.removeEventListener('data', handleData));
 
-  const updateArrayItem = (array, item, replacement) => {
-    const index = array.findIndex(i => i.id === item.id);
+  const updateArrayItem = (array, itemOrIndex, replacement) => {
+    const index = itemOrIndex < array.length ? itemOrIndex : array.findIndex(i => i.id === itemOrIndex.id);
     return array.slice(0, index).concat(replacement || []).concat(array.slice(index + 1));
   }
 
@@ -45,35 +47,43 @@
   }
 
   const handleClear = () => {
-    if(pickedImages.length && confirm('Are you sure you want to delete all images?')) updateImages([]);
+    if(pickedImages.length) {
+      if(confirm('Are you sure you want to remove all images from current workspace?')) updateImages([]);
+    }
     else notify("There are no images in workspace to clear");
   }
 
   const handleUpload =  async () => {
     const images = pickedImages.filter(image => image.state !== 'UPLOADED');
-    if(images.length && confirm('Are you sure you want to upload all images to gallery?')) {
-      try {
-        uploadedImagesCount = 0;
-        inProgress = true;
-        await Promise.all(images.map(async image => {
+    if(images.length) {
+      if(showWordpressLoginDialog || confirm('Are you sure you want to upload all images to gallery?')) {
+        if(cookies().wpToken) {
+          showWordpressLoginDialog = false;
           try {
-            pickedImages = updateArrayItem(pickedImages, image, {...image, state: 'UPLOADING', errorMessage: null});
-            await uploadImageToGallery(image);
-            pickedImages = updateArrayItem(pickedImages, image, {...image, state: 'UPLOADED'});
-            uploadedimagesCount++;
-          } catch(error) {
-            pickedImages = updateArrayItem(pickedImages, image,
-              {...image, state: 'FAILED', errorMessage: (error || {}).message});
-            throw error;
+            uploadedImagesCount = 0;
+            inProgress = true;
+            await Promise.all(images.map(async image => {
+              try {
+                // TODO: add presence validation for alt text
+                pickedImages = updateArrayItem(pickedImages, image, {...image, state: 'UPLOADING', errorMessage: null});
+                await uploadImageToWordpress(image);
+                pickedImages = updateArrayItem(pickedImages, image, {...image, state: 'UPLOADED'});
+                uploadedImagesCount++;
+              } catch(error) {
+                pickedImages = updateArrayItem(pickedImages, image,
+                  {...image, state: 'FAILED', errorMessage: (error.response || {}).data || error.message});
+                throw error;
+              }
+            }));
+            notify('All images were uploaded successfully', 'success');
+          } catch(_) {
+            notify('Failed to uplaod some or all images', 'error')
           }
-        }));
-        notify('All images were uploaded successfully', 'success');
-      } catch(_) {
-        notify('Failed to uplaod some or all images', 'error')
-      }
 
-      updateImages(pickedImages);
-      inProgress = false;
+          updateImages(pickedImages);
+          inProgress = false;
+        } else showWordpressLoginDialog = true;
+      }
     } else {
       notify("There are no new images in workspace to upload");
     }
@@ -111,14 +121,17 @@
     {/each}
   </div>
   <div class="toolbar">
-    <IconButton icon="eraser" color="white" disabled={inProgress || !totalImagesCount} on:click={handleClear}>
+    <IconButton icon="eraser" color="white" disabled={inProgress || !pickedImages.length} on:click={handleClear}>
       <span slot="text-right">Clear</span>
     </IconButton>
-    {#if inProgress}
-      <span>Uploaded {uploadedImagesCount} / {totalImagesCount}</span>
-    {/if}
     <IconButton icon="upload" color="white" disabled={inProgress || !totalImagesCount} on:click={handleUpload}>
-      <span slot="text-right">Upload</span>
+      <span slot="text-right">{inProgress ? 'Uploading...' : `Upload (${totalImagesCount})`}</span>
     </IconButton>
   </div>
+  {#if showWordpressLoginDialog}
+    <ModalDialog on:modalClose={() => showWordpressLoginDialog = false}>
+      <span slot="title">Wordpress Login</span>
+      <WordpressLogin on:login={handleUpload} />
+    </ModalDialog>
+  {/if}
 </div>

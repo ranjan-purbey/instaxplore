@@ -1,4 +1,7 @@
 {
   "watch": ["server", "serve.js"],
-  "ignore": ["server/**/*.sqlite"]
+  "ignore": ["server/**/*.sqlite"],
+  "env": {
+    "NODE_ENV": "development"
+  }
 }

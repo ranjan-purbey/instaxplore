@@ -1,5 +1,4 @@
-import { getInstagramId } from './stores';
-import Axios from 'axios';
+import { wordpressUrl } from './constants'
 /**
  * Return a promisified variant of a callback based asynchronous function
  * @param {Function} f
@@ -12,6 +11,14 @@ const pluralize = (count, word, plural, includeCount = true) =>
 const notify = (message, type) => {
   window.dispatchEvent(new CustomEvent('notification', {detail: {message, type}}));
 }
+
+const cookies = () => document.cookie.split("; ").reduce((res, item) => {
+  if(item) {
+    const [_, key, value] = /(.+?)=(.+)/.exec(item);
+    res[key] = value;
+  }
+  return res;
+}, {});
 
 const paginate = (array, pageNum = 1, pageSize = 20) => {
   const res = [...array];
@@ -38,11 +45,7 @@ const fbLoop = async (endpoint, limit = 70) => {
   return data;
 }
 
-const getInstagramMediaPosts = (() => {
-  let businessId;
-  getInstagramId.subscribe(promise => promise.then(val => businessId = val));
-
-  return async (profile, since, until) => {
+const getInstagramMediaPosts = async (profile, since, until, businessId) => {
     let posts = [];
     since = new Date(since).getTime();
     until = new Date(until).getTime();
@@ -57,7 +60,7 @@ const getInstagramMediaPosts = (() => {
 
         const {data, paging} = response['business_discovery']['media'];
         posts = posts.concat(data.filter(post => {
-          let timestamp = new Date(post.timestamp).getTime();
+          const timestamp = new Date(post.timestamp).getTime();
           return timestamp >= since && timestamp <= until;
         }));
         after = paging && paging.cursors.after;
@@ -70,13 +73,12 @@ const getInstagramMediaPosts = (() => {
     }
     return posts;
   }
-})()
 
 const getInstagramPostFromUrl = async (postUrl, hidecaption) => {
   try {
     postUrl = new URL(postUrl).href;
-    const response = await fetch(`https://api.instagram.com/oembed/\
-      ?url=${postUrl}${hidecaption ? `&hidecaption=${hidecaption}` : ''}`).then(res=> {
+    const response = await fetch('https://api.instagram.com/oembed/?url='
+      + `${postUrl}${hidecaption ? `&hidecaption=${hidecaption}` : ''}`).then(res=> {
         if(res.ok) return res.json();
         else if(res.status === 404 || res.status === 400) {
           return fetch(`https://cors-anywhere-0906.herokuapp.com/${postUrl}`, {method: 'head'}).then(headRes => {
@@ -111,30 +113,26 @@ const getInstagramPostFromUrl = async (postUrl, hidecaption) => {
   }
 }
 
-const saveWordpressPost = async ({siteUrl, username, password, content, title}) => {
-  const httpPost = (endpoint, data, token) => fetch(endpoint, {
-    method: 'post',
+const saveWordpressPost = async ({content, title}) => {
+  const request = (endpoint, data) => fetch(`${wordpressUrl}/wp-json/wp/v2/posts${endpoint}`, {
+    method: data ? 'post': 'get',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': token ? `Bearer ${token}` : ''
+      'Authorization': `Bearer ${cookies().wpToken}`
     },
-    body: JSON.stringify(data)
+    ...(data ? {body: JSON.stringify(data)} : {})
   }).then(res => res.json());
 
   try {
-    const {message: authError, token} = await httpPost(`${siteUrl}/wp-json/jwt-auth/v1/token`, {username, password});
-    if(authError) throw new Error(authError);
-
     let saveRequest;
     if(~~title == title) {
-      const {message: readError, content: oldContent} = await fetch(`${siteUrl}/wp-json/wp/v2/posts/${title}?context=edit`, {
-        headers: { 'Authorization': `Bearer ${token}`}
-      }).then(res => res.json());
+      const {message: readError, content: oldContent} = await request(`/${title}?context=edit`)
       if(readError) throw new Error(readError);
+      console.log({oldContent, content})
       content = oldContent.raw + content;
-      saveRequest = httpPost(`${siteUrl}/wp-json/wp/v2/posts/${title}`, {content}, token);
+      saveRequest = request(`/${title}`, {content});
     } else {
-      saveRequest = httpPost(`${siteUrl}/wp-json/wp/v2/posts/`, {title, content}, token);
+      saveRequest = request('/', {title, content});
     }
     const {message: saveError, id} = await saveRequest;
     if(saveError) throw new Error(saveError);
@@ -145,44 +143,52 @@ const saveWordpressPost = async ({siteUrl, username, password, content, title}) 
   }
 }
 
-const getHtmlFromPosts = (posts, embed) =>
-  Promise.all(posts.map(async post => {
-    if(post['non_instagram'] && embed) return null;
+const generateWordpressPostContent = (mediaItems, embed) =>
+  Promise.all(mediaItems.map(async mediaItem => {
+    const content = {};
+    if(mediaItem['non_instagram'] && embed) return null;
     if(embed) {
-      post.body = !post['hidecaption'] && post['html']
-        ? post['html'] : (await getInstagramPostFromUrl(post['permalink'], post['hidecaption']))['html'];
+      content.body = !mediaItem['hidecaption'] && mediaItem['html']
+        ? mediaItem['html'] : (await getInstagramPostFromUrl(mediaItem['permalink'], mediaItem['hidecaption']))['html'];
     } else {
-      const media = post['media_type'] === 'VIDEO'
-        ? `<video src=${post['media_url']} preload="metadata" style="max-height: 80vh; max-width: 100%;" controls>Instagram Video</video>`
-        : `<img src=${post['media_url']} alt="Instagram Image" style="max-height: 80vh;" />`;
+      const figure = mediaItem['media_type'] === 'VIDEO'
+        ? `<video src=${mediaItem['media_url']} preload="metadata" style="max-height: 80vh; max-width: 100%;" controls>Instagram Video</video>`
+        : `<img src=${mediaItem['media_url']} alt="Instagram Image" style="max-height: 80vh;" />`;
 
-      post.body = `<figure style="margin-bottom: 1em;">${media}`;
-      if(!post['non_instagram'])
-        post.body += `<figcaption><a href="https://www.instagram.com/${post['username']}">@${post['username']}</a> `
-        + (post['hidecaption'] || post['non_instagram'] ? '' : ` <em>${post['caption']}</em> `)
-        + `<a href="${post['permalink']}" target="_blank">[View on Instagram]</a></figcaption>`;
-      post.body += '</figure>';
+      content.body = `<figure style="margin-bottom: 1em;">${figure}`;
+      if(!mediaItem['non_instagram']) content.body += '<figcaption>'
+        + (mediaItem['username'] ? `<a href="https://www.instagram.com/${mediaItem['username']}">@${mediaItem['username']}</a> ` : '')
+        + (mediaItem['hidecaption'] || mediaItem['non_instagram'] ? '' : ` <em>${mediaItem['caption']}</em> `)
+        + `<a href="${mediaItem['permalink']}" target="_blank">(Source)</a></figcaption>`;
+      content.body += '</figure>';
     }
-    return (post.header ? `<h2>${post.header}</h2>` : '')
-      + post.body
-      + (post.description ? `<p>${post.description}</p>` : '')
+    return (content.header ? `<h2>${content.header}</h2>` : '')
+      + content.body
+      + (content.description ? `<p>${content.description}</p>` : '')
   })).then(htmlFragments => htmlFragments.join(""));
 
-const uploadImageToGallery = image => {
+const uploadImageToWordpress = async image => {
   const imageSanitized = ['src', 'href', 'width', 'height', 'alt' , 'tags'].reduce((res, key) =>
     Object.assign(res, {[key]: image[key]}), {});
-  return Axios.post('/api/upload', imageSanitized);
+
+  let res = await fetch('/api/upload', {
+    method: 'post',
+    headers: {'content-type': 'application/json', 'authorization': cookies().wpToken},
+    body: JSON.stringify(imageSanitized)
+  });
+  if(!res.ok) throw new Error(await res.text());
 }
 
 export {
   promisify,
   pluralize,
   paginate,
+  cookies,
   fbLoop,
   getInstagramMediaPosts,
   getInstagramPostFromUrl,
   notify,
-  getHtmlFromPosts,
+  generateWordpressPostContent,
   saveWordpressPost,
-  uploadImageToGallery
+  uploadImageToWordpress
 }

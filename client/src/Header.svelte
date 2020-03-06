@@ -2,11 +2,20 @@
   import { onDestroy } from 'svelte';
   import IconButton from './shared/IconButton.svelte';
   import Link from './shared/Link.svelte';
+  import { cookies } from './utils';
   import { loggedIn, currentPath } from './stores';
 
   let loggedInVal, currentPathVal;
   onDestroy(loggedIn.subscribe(val => loggedInVal = val));
   onDestroy(currentPath.subscribe(val => currentPathVal = val));
+
+  const logout = () => {
+    window.localStorage.clear();
+    Object.keys(cookies()).forEach(key => {
+      document.cookie = `${key}= ; expires=${new Date(0).toUTCString()}`;
+    });
+    window.FB.logout();
+  }
 </script>
 
 <style>
@@ -57,7 +66,7 @@
       </Link>
     {/if}
     <IconButton size="1.5rem" color={loggedInVal ? "#900" : "#093"} icon="power"
-      on:click={() => loggedInVal ? window.FB.logout() : window.FB.login(() => {}, {
+      on:click={() => loggedInVal ? logout() : window.FB.login(() => {}, {
         scope: "manage_pages,instagram_basic,instagram_manage_insights", auth_type: "rerequest"})}>
       <div class="header-item">Log{loggedInVal ? "out" : "in"}
     </IconButton>
