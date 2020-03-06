@@ -9,9 +9,20 @@ const currentPath = writable(window.location.pathname, set => {
 
 const loggedIn = writable(false);
 const lastCache = writable();
-const getInstagramId = derived(loggedIn, async loggedInVal =>
-  loggedInVal && fbLoop('/me/accounts?fields=name,instagram_business_account')
-  .then(pages => pages.find(page => page['instagram_business_account'])['instagram_business_account'].id));
+const getInstagramId = derived(loggedIn, (() => {
+  let _instagramId;
+  return async loggedInVal => {
+    if(loggedInVal) {
+      if(!_instagramId) {
+        const instagramPages = await fbLoop('/me/accounts?fields=name,instagram_business_account');
+        _instagramId = instagramPages.map(page => page['instagram_business_account']).find(o => o).id;
+      }
+      return _instagramId;
+    } else {
+      _instagramId = null;
+    }
+  }
+})())
 
 const addedMedia = (() => {
   const {set, update, subscribe} = writable([], set => {
