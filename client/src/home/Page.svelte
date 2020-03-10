@@ -1,8 +1,8 @@
 <script>
   import Explorer from './explorer/Explorer.svelte';
+  import WordpressGallery from './gallery/WordpressGallery.svelte';
   import Editor from './editor/Editor.svelte';
-  import { getInstagramId } from '../stores';
-
+  import { getInstagramId, currentPath } from '../stores';
 </script>
 <style>
   main {
@@ -19,7 +19,11 @@
 
 {#await $getInstagramId then }
   <main>
-    <Explorer />
+    {#if $currentPath === '/gallery'}
+      <WordpressGallery />
+    {:else}
+      <Explorer />
+    {/if}
     <div class="gutter" />
     <Editor />
   </main>

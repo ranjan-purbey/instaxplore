@@ -21,7 +21,6 @@
     text-align: center;
     margin-bottom: .5rem;
     position: relative;
-    overflow-y: hidden;
   }
   .image-wrapper img {
     max-width: 100%;
@@ -84,10 +83,10 @@
         placeholder="Alternate text to display if image fails to load"></textarea>
     </label>
     <label>
-      Tags:
-      <textarea use:autoAdjustHeight value={image.tags || ''} disabled={['UPLOADING', 'UPLOADED'].includes(image.state)}
-        on:change={function() {dispatch('update', {imageId: image.id, updates: {tags: this.value}})}}
-        placeholder="Comma-separated list of tags by which the image can be searched"></textarea>
+      Description:
+      <textarea use:autoAdjustHeight value={image.description || ''} disabled={['UPLOADING', 'UPLOADED'].includes(image.state)}
+        on:change={function() {dispatch('update', {imageId: image.id, updates: {description: this.value}})}}
+        placeholder="A brief description about the image"></textarea>
     </label>
   </div>
   <div class="actions">

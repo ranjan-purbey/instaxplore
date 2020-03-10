@@ -5,7 +5,6 @@
   import Waiter from './shared/Waiter.svelte';
   import Notification from './shared/Notification.svelte';
   import HomePage from './home/Page.svelte';
-  import GalleryPage from './gallery/Page.svelte';
   import UploadPage from './upload/Page.svelte';
   import { currentPath, loggedIn } from './stores';
 
@@ -14,7 +13,6 @@
   let fbInitPromise = new Promise(() => {}), isLoggedIn, currentPage;
 
   const routes = {
-    '/gallery': { component: GalleryPage },
     '/upload': { component: UploadPage },
     'home': { component: HomePage }
   }

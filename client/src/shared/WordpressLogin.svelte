@@ -47,9 +47,7 @@
 </style>
 
 {#await loginRequest}
-  <Waiter>
-    <Icon icon="spinner" size="2em" spin><span slot="text-right">Logging in...</span></Icon>
-  </Waiter>
+  <Waiter>Logging in...</Waiter>
 {/await}
 <form on:submit|preventDefault={handleSubmit}>
   <label>

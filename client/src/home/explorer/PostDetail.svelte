@@ -1,6 +1,7 @@
 <script>
   import Icon from '../../shared/Icon.svelte';
   import { addedMedia } from '../../stores';
+  import { randomString } from '../../utils';
   export let post, highlight;
 
   const humanizeCount = count => {
@@ -14,7 +15,7 @@
     event.target.innerText = "Add again";
     addedMedia.update(media => [
       ...media,
-      {...post, id: `${post.id}_${Math.random().toString(36).substring(7)}`}
+      {...post, id: `${post.id}_${randomString()}`}
     ])
   }
 </script>

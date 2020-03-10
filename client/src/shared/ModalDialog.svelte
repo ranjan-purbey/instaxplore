@@ -1,6 +1,7 @@
 <script>
   import { createEventDispatcher } from 'svelte';
   import IconButton from './IconButton.svelte';
+  export let closeButton = true;
 
   const dispatch = createEventDispatcher();
   const dispatchClose = () => dispatch('modalClose');
@@ -32,7 +33,7 @@
     text-align: center;
     font-size: 1.7rem;
     margin: 1rem 0;
-    padding-left: 1rem;
+    text-align: center;
   }
   .modal-body {
     padding: 0 1.5rem 1.5rem;
@@ -44,7 +45,9 @@
   <div class="modal-wrapper" on:click|stopPropagation>
     <div class="modal-head">
       <span class="modal-title"><slot name="title" /></span>
-      <IconButton icon="close" color="red" size="1.5em" on:click={dispatchClose} />
+      {#if closeButton}
+        <IconButton icon="close" color="red" size="1.5em" on:click={dispatchClose} />
+      {/if}
     </div>
     <div class="modal-body"><slot/></div>
   </div>

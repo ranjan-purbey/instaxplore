@@ -2,10 +2,11 @@
   import { currentPath } from '../stores';
   export let to;
   const handleClick = e => {
-    const isRelative = new URL(to, window.location.origin).origin === window.location.origin;
+    const url = new URL(to, window.location.origin);
+    const isRelative = url.origin === window.location.origin;
     if(isRelative) {
-      window.history.pushState(null, null, to);
-      currentPath.set(to);
+      window.history.pushState(null, null, url);
+      currentPath.set(url.pathname);
     } else {
       window.location.assign(to);
     }
@@ -22,6 +23,6 @@
   }
 </style>
 
-<a href={to} tabindex="0" on:click|preventDefault={handleClick}>
+<a href={to} on:click|preventDefault={handleClick}>
   <slot />
 </a>

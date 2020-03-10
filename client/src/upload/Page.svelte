@@ -5,7 +5,7 @@
   import IconButton from '../shared/IconButton.svelte';
   import ModalDialog from '../shared/ModalDialog.svelte';
   import WordpressLogin from '../shared/WordpressLogin.svelte';
-  import { notify, uploadImageToWordpress, cookies } from '../utils';
+  import { notify, uploadImageToWordpress, cookies, randomString } from '../utils';
 
   let pickedImages = [], totalImagesCount, uploadedImagesCount, inProgress = false, showWordpressLoginDialog = false;
   try {
@@ -26,7 +26,7 @@
   const handleData = e => {
     updateImages(pickedImages.concat(Array.from(JSON.parse(e.detail)).map(image => ({
       ...image,
-      id: Math.random().toString(36).substring(7)
+      id: randomString()
     }))));
   };
 
@@ -111,6 +111,10 @@
   }
 </style>
 
+
+<svelte:head>
+  <title>InstaXplore | Upload</title>
+</svelte:head>
 
 <div class="upload-page">
   <div class="images-container">

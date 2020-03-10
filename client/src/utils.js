@@ -12,6 +12,9 @@ const notify = (message, type) => {
   window.dispatchEvent(new CustomEvent('notification', {detail: {message, type}}));
 }
 
+const randomString = (size = 5) => new Array(size).fill(null).map(() => Math.random().toString(36).slice(-1))
+  .map(c => Math.random() > .5 ? c.toUpperCase() : c).join('')
+
 const cookies = () => document.cookie.split("; ").reduce((res, item) => {
   if(item) {
     const [_, key, value] = /(.+?)=(.+)/.exec(item);
@@ -87,7 +90,7 @@ const getInstagramPostFromUrl = async (postUrl, hidecaption) => {
               const post = {
                 "media_url": postUrl,
                 "non_instagram": true,
-                "id": Math.random().toString(36).substring(7)
+                "id": randomString()
               }
               if(mediaType.includes("image")) {
                 return Object.assign({}, post, {'media_type': 'IMAGE'});
@@ -106,7 +109,7 @@ const getInstagramPostFromUrl = async (postUrl, hidecaption) => {
       "media_url": `${postUrl}media?size=l`,
       "caption": response['title'],
       "html": response['html'],
-      "id": `${response['media_id']}_${Math.random().toString(36).substring(7)}`
+      "id": `${response['media_id']}_${randomString()}`
     }
   } catch(error) {
     notify(error.message, 'error');
@@ -128,7 +131,6 @@ const saveWordpressPost = async ({content, title}) => {
     if(~~title == title) {
       const {message: readError, content: oldContent} = await request(`/${title}?context=edit`)
       if(readError) throw new Error(readError);
-      console.log({oldContent, content})
       content = oldContent.raw + content;
       saveRequest = request(`/${title}`, {content});
     } else {
@@ -145,36 +147,37 @@ const saveWordpressPost = async ({content, title}) => {
 
 const generateWordpressPostContent = (mediaItems, embed) =>
   Promise.all(mediaItems.map(async mediaItem => {
-    const content = {};
     if(mediaItem['non_instagram'] && embed) return null;
+    let body;
     if(embed) {
-      content.body = !mediaItem['hidecaption'] && mediaItem['html']
+      body = !mediaItem['hidecaption'] && mediaItem['html']
         ? mediaItem['html'] : (await getInstagramPostFromUrl(mediaItem['permalink'], mediaItem['hidecaption']))['html'];
     } else {
       const figure = mediaItem['media_type'] === 'VIDEO'
         ? `<video src=${mediaItem['media_url']} preload="metadata" style="max-height: 80vh; max-width: 100%;" controls>Instagram Video</video>`
         : `<img src=${mediaItem['media_url']} alt="Instagram Image" style="max-height: 80vh;" />`;
 
-      content.body = `<figure style="margin-bottom: 1em;">${figure}`;
-      if(!mediaItem['non_instagram']) content.body += '<figcaption>'
+      body = `<figure style="margin-bottom: 1em;">${figure}`;
+      if(!mediaItem['non_instagram']) body += '<figcaption>'
         + (mediaItem['username'] ? `<a href="https://www.instagram.com/${mediaItem['username']}">@${mediaItem['username']}</a> ` : '')
         + (mediaItem['hidecaption'] || mediaItem['non_instagram'] ? '' : ` <em>${mediaItem['caption']}</em> `)
         + `<a href="${mediaItem['permalink']}" target="_blank">(Source)</a></figcaption>`;
-      content.body += '</figure>';
+      body += '</figure>';
     }
-    return (content.header ? `<h2>${content.header}</h2>` : '')
-      + content.body
-      + (content.description ? `<p>${content.description}</p>` : '')
+    return (mediaItem.header ? `<h2>${mediaItem.header}</h2>` : '')
+      + body
+      + (mediaItem.description ? `<p>${mediaItem.description}</p>` : '');
   })).then(htmlFragments => htmlFragments.join(""));
 
 const uploadImageToWordpress = async image => {
-  const imageSanitized = ['src', 'href', 'width', 'height', 'alt' , 'tags'].reduce((res, key) =>
-    Object.assign(res, {[key]: image[key]}), {});
-
   let res = await fetch('/api/upload', {
     method: 'post',
     headers: {'content-type': 'application/json', 'authorization': cookies().wpToken},
-    body: JSON.stringify(imageSanitized)
+    body: JSON.stringify({
+      src: image.src,
+      alt: image.alt,
+      description: image.description
+    })
   });
   if(!res.ok) throw new Error(await res.text());
 }
@@ -190,5 +193,6 @@ export {
   notify,
   generateWordpressPostContent,
   saveWordpressPost,
-  uploadImageToWordpress
+  uploadImageToWordpress,
+  randomString
 }

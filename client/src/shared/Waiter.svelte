@@ -17,5 +17,5 @@
 </style>
 
 <div class="waiter">
-  <slot><Icon icon="spinner" size="2em" spin><span slot="text-right">Please wait...</span></Icon></slot>
+  <Icon icon="spinner" size="2em" spin><span slot="text-right"><slot>Please wait...</slot></span></Icon>
 </div>

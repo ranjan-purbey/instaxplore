@@ -65,6 +65,11 @@
   }
 </style>
 
+
+<svelte:head>
+  <title>InstaXplore | Home</title>
+</svelte:head>
+
 <section class="explorer">
   {#await posts}
     <Waiter />

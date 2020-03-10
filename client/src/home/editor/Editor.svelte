@@ -116,7 +116,7 @@
   </div>
   {#if modal}
     <ModalDialog on:modalClose={closeModal}>
-      <span slot="title">{modal.title}</span>
+      <span slot="title">{modal.title || ''}</span>
       {#if modal === modals.ADD_LINKS}
         <AddLinksForm on:added={closeModal} />
       {:else if modal === modals.WORDPRESS.LOGIN}
