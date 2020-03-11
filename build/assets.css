@@ -3,3 +3,10 @@
 .flex.justify-content-center { justify-content: center; }
 .flex.justify-content-between { justify-content: space-between; }
 .flex.align-items-center { align-items: center; }
+
+.message {
+  font-size: 1.3rem;
+  text-align: center;
+  color: grey;
+  padding: 1rem;
+}
