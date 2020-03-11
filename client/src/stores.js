@@ -1,8 +1,8 @@
 import { writable, derived } from 'svelte/store';
 import { fbLoop } from './utils';
 
-const currentPath = writable(window.location.pathname, set => {
-  const handlePopstate = () => set(window.location.pathname);
+const currentPath = writable(window.location.hash, set => {
+  const handlePopstate = () => set(window.location.hash);
   window.addEventListener('popstate', handlePopstate);
   return () => window.removeEventListener('popstate', handlePopstate);
 });

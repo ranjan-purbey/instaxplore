@@ -1,4 +1,6 @@
-import { wordpressUrl } from './constants'
+import { wordpressUrl, corsProxyUrl } from './constants'
+import sanitizeHtml from 'sanitize-html';
+
 /**
  * Return a promisified variant of a callback based asynchronous function
  * @param {Function} f
@@ -170,16 +172,34 @@ const generateWordpressPostContent = (mediaItems, embed) =>
   })).then(htmlFragments => htmlFragments.join(""));
 
 const uploadImageToWordpress = async image => {
-  let res = await fetch('/api/upload', {
-    method: 'post',
-    headers: {'content-type': 'application/json', 'authorization': cookies().wpToken},
-    body: JSON.stringify({
-      src: image.src,
-      alt: image.alt,
-      description: image.description
-    })
-  });
-  if(!res.ok) throw new Error(await res.text());
+  const imageBlob = await fetch(`${corsProxyUrl}/${image.src}`).then(res =>
+    res.ok ? res.blob() : Promise.reject(new Error(`Image inaccessible::${res.statusText}`)));
+  const filename = new URL(image.src).pathname.split('/').pop().split('.').slice(0,-1).join('');
+  const extension = (() => {
+    switch(imageBlob.type) {
+      case 'image/png': return 'png';
+      case 'image/jpeg': return 'jpg';
+      case 'image/gif': return 'gif';
+    }
+  })();
+
+  if(extension) {
+    const data = new FormData();
+    data.append('file', imageBlob, `${filename}.${extension}`);
+    data.append('alt_text', sanitizeHtml(image.alt));
+    data.append('caption', sanitizeHtml(image.alt));
+    data.append('description', sanitizeHtml(image.description));
+    await fetch(`${wordpressUrl}/wp-json/wp/v2/media`, {
+      method: 'post',
+      headers: {
+        authorization: `Bearer ${cookies().wpToken}`
+      },
+      body: data
+    }).then(async res => !res.ok && Promise.reject(new Error(
+      `Failed to upload image to Wordpress (${(await res.json()).message || res.statusText})`)))
+  } else {
+    throw new Error(`The image has invalid content-type ${imageBlob.type}`);
+  }
 }
 
 export {

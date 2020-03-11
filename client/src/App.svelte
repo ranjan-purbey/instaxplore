@@ -13,7 +13,7 @@
   let fbInitPromise = new Promise(() => {}), isLoggedIn, currentPage;
 
   const routes = {
-    '/upload': { component: UploadPage },
+    '#/upload': { component: UploadPage },
     'home': { component: HomePage }
   }
   onDestroy(currentPath.subscribe(path => currentPage = routes[path] || routes['home']));

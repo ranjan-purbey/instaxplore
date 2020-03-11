@@ -115,7 +115,7 @@
     {/if}
   </div>
   {#if inProgress}
-    <Waiter />
+    <Waiter>Fetching images...</Waiter>
   {/if}
 </div>
 {#if showLoginDialog}

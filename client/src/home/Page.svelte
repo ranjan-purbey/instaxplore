@@ -19,7 +19,7 @@
 
 {#await $getInstagramId then }
   <main>
-    {#if $currentPath === '/gallery'}
+    {#if $currentPath === '#/gallery'}
       <WordpressGallery />
     {:else}
       <Explorer />

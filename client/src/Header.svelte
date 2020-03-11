@@ -56,13 +56,13 @@
 </style>
 
 <header>
-  <Link to="/">
+  <Link to="#/home">
     <div class="brand header-item">InstaXplore</div>
   </Link>
   <div class="menu">
     {#if loggedInVal}
-      <Link to="/gallery">
-        <div class="header-item header-link" class:active={currentPathVal === '/gallery'}>Gallery</div>
+      <Link to="#/gallery">
+        <div class="header-item header-link" class:active={currentPathVal === '#/gallery'}>Gallery</div>
       </Link>
     {/if}
     <IconButton size="1.5rem" color={loggedInVal ? "#900" : "#093"} icon="power"

@@ -6,7 +6,7 @@
     const isRelative = url.origin === window.location.origin;
     if(isRelative) {
       window.history.pushState(null, null, url);
-      currentPath.set(url.pathname);
+      currentPath.set(to);
     } else {
       window.location.assign(to);
     }
